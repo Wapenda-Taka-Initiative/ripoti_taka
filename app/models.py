@@ -1,5 +1,19 @@
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import AnonymousUserMixin, UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
+
+from . import db, login_manager
+
+@login_manager.user_loader
+def load_user(user_id):
+    """
+    Queries the database for a record of currently logged in user
+    Returns User object containing info about logged in user
+    """
+    return user.query.get(int(user_id))
+
 
 db = SQLAlchemy()
 
@@ -12,7 +26,14 @@ class Role(db.Model):
         return f"<Role(roleId={self.roleId}, name='{self.name}')>"
 
 
-class User(db.Model):
+class Anonymous_User(AnonymousUserMixin):
+    pass
+
+
+login_manager.anonymous_user = Anonymous_User
+
+
+class User(UserMixin, db.Model):
     __tablename__ = 'user'
     userId = db.Column(db.Integer, primary_key=True, autoincrement=True)
     userName = db.Column(db.String(50), unique=True, nullable=False)

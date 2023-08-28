@@ -1,207 +1,52 @@
-{% extends "bootstrap/base.html" %}
-{% import "bootstrap/wtf.html" as wtf %}
-{% import "_macros.html" as macros %}
+<!DOCTYPE html>
+<html lang = 'en'>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		{% block scripts %}
+		{{ moment.include_moment() }}
+		{% endblock scripts%}
+		<title>
+			{% block title %}{% endblock title%} - {{app_name|title}}
+		</title>
 
-{% block scripts %}
-    {{ super() }}
-    {{ moment.include_moment() }}
-    <script src = "{{url_for('static',filename='js/Chart.min.js')}}"></script>
-    <link rel="stylesheet" href="{{url_for('static',filename='css/bootstrap.min.css')}}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.7
-.1/min/dropzone.min.css">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css" integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz" crossorigin="anonymous">
-{% endblock scripts%}
+		{% block head %}
+		<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+		<link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+		<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" crossorigin="anonymous">
+		{% endblock head %}
+	</head>
+	<body class="bg-gray-100 font-sans">
+		{% block navbar %}
+		<nav class="bg-blue-800 py-5">
+			<div class="container mx-auto flex justify-center items-center">
+				<ul class="flex space-x-4 text-white">
+					<li><a href="{{ url_for('main.index')}}" class="hover:text-blue-300">Home</a></li>
+					<li><a href="{{ url_for('main.get_involved')}}" class="hover:text-blue-300">Get Involved</a></li>
+					<li><a href="{{ url_for('main.contact_us')}}" class="hover:text-blue-300">Contact</a></li>
+					<li><a href="{{ url_for('authentication.login')}}" class="hover:text-blue-300">Sign In</a></li>
+				</ul>
+			</div>
+		</nav>
 
-{% block title %}{{app_name|title}} - {% endblock title%}
+		{% endblock navbar %}
 
-{% block head %}    
-    {{ super() }}
-    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
-    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">     
-{% endblock head %}
+		{% block content %}
+		{% block page_content %}{% endblock page_content %}
+		{% endblock content %}
 
-{% block navbar %}
-{{ super() }}
-<div class="navbar navbar-inverse" role="navigation">
- <div class="container">
-     <div class="navbar-header">
-         <button type="button" class="navbar-toggle"
-         data-toggle="collapse" data-target=".navbar-collapse">
-             <span class="sr-only">Toggle navigation</span>
-             <span class="icon-bar"></span>
-             <span class="icon-bar"></span>
-             <span class="icon-bar"></span>
-         </button>
-	 <a class="navbar-brand" href="/">{{app_name}}</a>
-     </div>
-     <div class="navbar-collapse collapse">
-         <ul class="nav navbar-nav">
-		 <li><a href="{{url_for('main.homepage')}}">Home</a></li>
-
-		 <li class = "dropdown">
-                         <a href = "#" class = "dropdown-toggle" data-toggle = "dropdown">
-                                 Registration
-                                 <b class = "caret"></b>
-			 </a>
-
-			 <ul class = "dropdown-menu">
-				 <li>
-					 <a href = "{{ url_for('registration.register_patient') }}">
-						Register Patient
-					</a>
-				 </li>
-				 <li>
-					 <a href = "{{ url_for('registration.register_health_center_type') }}">
-						Register Health Center Type
-					</a>
-				 </li>
-				 <li>
-					 <a href = "{{ url_for('registration.register_health_specialist') }}">
-						 Register Health Specialist
-					 </a>
-				 </li>
-				 <li>
-					 <a href = "{{ url_for('registration.register_health_center') }}">
-						 Register Health Center
-					 </a>
-				 </li>
-				 <li>
-					 <a href = "{{ url_for('registration.register_health_practitioner_type') }}">
-						 Register Health Practitioner Type
-					 </a>
-				 </li>
-				 <li>
-					 <a href = "{{ url_for('registration.register_health_specialist_type') }}">
-						 Register Health Specialist Type
-					 </a>
-				 </li>
-				 <li>
-					 <a href = "{{ url_for('checkups.register_checkup_document_type') }}">
-						 Register CheckUp Document Type 
-					 </a>
-				 </li>
-				 <li>
-					 <a href = "{{ url_for('registration.register_body_part') }}">
-						Register Body Part
-					</a>
-				 </li>
-				 <li>
-					 <a href = "{{ url_for('registration.register_patient_document_type') }}">
-						Register Patient Document Type
-					</a>
-				 </li>
-				 <li>
-					 <a href = "{{ url_for('registration.register_service') }}">
-						 Register Health Service
-					 </a>
-				 </li>
-                         </ul>
-                 </li>
-		 <li class = "dropdown">
-                         <a href = "#" class = "dropdown-toggle" data-toggle = "dropdown">
-                                 Records
-                                 <b class = "caret"></b>
-			 </a>
-
-			 <ul class = "dropdown-menu">
-				 <li>
-					 <a href = "{{ url_for('profiles.list_of_patients') }}">
-						Patients
-					</a>
-				 </li>
-				 <li>
-					 <a href = "{{ url_for('profiles.view_health_center_types') }}">
-						Health Center Types
-					</a>
-				 </li>
-				 <li>
-					 <a href = "{{ url_for('profiles.view_health_centers') }}">
-						 Health Centers
-					 </a>
-				 </li>
-				 <li>
-					 <a href = "{{ url_for('profiles.list_of_health_specialists') }}">
-						 Health Specialists
-					 </a>
-				 </li>
-				 <li>
-					 <a href = "{{ url_for('profiles.list_of_health_practitioners') }}">
-						 Health Practitioners
-					 </a>
-				 </li>
-				 <li>
-					 <a href = "{{ url_for('profiles.view_health_specialist_types') }}">
-						 Health Specialist Types
-					 </a>
-				 </li>
-				 <li>
-					 <a href = "{{ url_for('profiles.view_health_practitioner_types') }}">
-						 Health Practitioner Types
-					 </a>
-				 </li>
-				 <li>
-					 <a href = "{{ url_for('profiles.view_body_parts') }}">
-						 Parts of the Human Body
-					 </a>
-				 </li>
-                         </ul>
-                 </li>
-		 <li><a href = "{{url_for('main.contact_us')}}">Contact Us</a></li>
-     </div>
- </div>
-</div>
-{% endblock navbar%}
-
-{% block content %}
-{{super()}}
-    <div class="container">        
-                {% for message in get_flashed_messages() %}
-                    <div class = "alert alert-info">
-                        <button type = "button" class = "close" data-dismiss = "alert">&times;</button>
-                         {{message}}
-                    </div>
-                {% endfor %}
-
-                {% block page_content %}{% endblock page_content%}            
-    </div>
-
-    <div>
-	    <footer class = "page-footer jumbotron">
-		    <div class = "container-fluid text-center">
-			    <h3>{{app_name}}</h3>
-			    <h5>
-				    Get connected with us on social networks!
-			    </h5>
-			    <ul class = "list-unstyled list-inline">
-				    <li class = "list-inline-item">
-					    <a class = "fb-ic">
-						    <i class="fab fa-facebook-f fa-lg white-text mr-md-5 mr-3 fa-2x"></i>
-					    </a>
-				    </li>
-				    <li class = "list-inline-item">
-					    <a class = "tw-ic">
-						    <i class="fab fa-twitter fa-lg white-text mr-md-5 mr-3 fa-2x"></i>
-					    </a>
-				    </li>
-				    <li class = "list-inline-item">
-					    <a class = "gplus-ic">
-						    <i class="fab fa-google-plus-g fa-lg white-text mr-md-5 mr-3 fa-2x">
-						    </i>
-					    </a>
-				    </li>
-				    <li class = "list-inline-item">
-					    <a class = "ins-ic">
-						    <i class="fab fa-instagram fa-lg white-text mr-md-5 mr-3 fa-2x"></i>
-					    </a>
-				    </li>
-			    </ul>
-		    </div>
-		    <div class = "footer-copyright text-center p-3">
-			    ©copyright :
-			    <a href = "#">
-				    www.ourdigitaltimes.com
-			    </a>
-		    </div>
-	    </footer>
-    </div>
-{% endblock content %}
+		{% block footer %}
+		<footer class="bg-gray-900 text-white py-8">
+			<div class="container mx-auto text-center">
+				<p class="mb-4">&copy; 2023 {{ app_name | title }}. All rights reserved.</p>
+				<div class="flex justify-center space-x-4">
+					<a href="{{ url_for('main.privacy_policy')}}" class="hover:text-blue-300">Privacy Policy</a>
+					<a href="{{ url_for('main.terms_and_conditions')}}" class="hover:text-blue-300">Terms and Conditions of Service</a>
+					<a href="{{ url_for('main.contact_us')}}" class="hover:text-blue-300">Contact Us</a>
+				</div>
+			</div>
+		</footer>
+		{% endblock footer %}
+	</body>
+</html>

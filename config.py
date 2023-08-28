@@ -6,7 +6,7 @@ class Config:
             'Fighting poverty, ignorance and diseases'
     
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    ORGANISATION_NAME = os.environ.get('ORGANISATION_NAME') or\
+    ORGANIZATION_NAME = os.environ.get('ORGANISATION_NAME') or\
             'Ripoti Taka Program'
 
     REPORT_IMAGES_UPLOAD_PATH = os.path.join(basedir + 

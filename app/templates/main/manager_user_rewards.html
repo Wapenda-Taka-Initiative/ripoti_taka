@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage User Rewards - Ripoti Taka Program</title>
+    <!-- Link to Tailwind CSS stylesheet -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        /* Custom CSS */
+        .reward-card {
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .reward-card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-green-400 to-blue-500 relative">
+    <!-- Navigation Bar -->
+    <nav class="bg-blue-800 p-4 text-white">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="#" class="font-bold text-xl">Ripoti Taka Program</a>
+            <a href="#" class="hover:underline">Logout</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto mt-8 p-8 bg-white rounded-lg shadow-lg relative">
+        <!-- Manage User Rewards Header -->
+        <header class="bg-gradient-to-r from-green-500 to-green-600 rounded-lg p-6 text-white mb-8">
+            <h1 class="text-4xl font-semibold mb-2">Manage User Rewards</h1>
+            <p class="text-gray-200">Manage rewards for user engagement.</p>
+        </header>
+
+        <!-- User Rewards List -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Reward Card -->
+            <div class="reward-card bg-gradient-to-r from-green-400 to-green-500 rounded-lg p-6 text-white hover:shadow-xl">
+                <h2 class="text-2xl font-semibold mb-2">Reward: Eco Champion</h2>
+                <p class="text-gray-200"><strong>Points Required:</strong> 200</p>
+                <button class="mt-4 bg-green-500 text-white rounded-lg py-2 px-4 hover:bg-green-600 focus:outline-none transition duration-300 ease-in-out">Edit Reward</button>
+            </div>
+            <!-- ... Add more reward cards here ... -->
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-200 text-center p-4 mt-8">
+        <p class="text-gray-600">Copyright © 2023 Ripoti Taka Program. All rights reserved.</p>
+    </footer>
+</body>
+</html>

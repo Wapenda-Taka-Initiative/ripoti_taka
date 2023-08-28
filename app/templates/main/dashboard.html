@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Program Analytics - Ripoti Taka Program</title>
+    <!-- Link to Tailwind CSS stylesheet -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Link to Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Custom CSS */
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        .expanded-chart {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.9);
+            z-index: 1;
+            backdrop-filter: blur(10px);
+            transform: scale(0.9);
+            opacity: 0;
+            pointer-events: none;
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+        }
+        .chart-card:hover .expanded-chart {
+            transform: scale(1);
+            opacity: 1;
+            pointer-events: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Navigation Bar -->
+    <nav class="bg-blue-800 p-4 text-white">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="#" class="font-bold text-xl">Ripoti Taka Program</a>
+            <a href="#" class="hover:underline">Logout</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto mt-8 p-8 bg-white rounded-lg shadow-lg relative">
+        <!-- View Program Analytics Header -->
+        <header class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg p-6 text-white mb-8">
+            <h1 class="text-4xl font-semibold mb-2">View Program Analytics</h1>
+            <p class="text-gray-200">Explore insights and data visualizations for informed decisions.</p>
+        </header>
+
+        <!-- Analytics Charts -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Bar Chart Card -->
+            <div class="chart-card bg-gradient-to-r from-purple-400 to-purple-500 rounded-lg p-6 text-white hover:shadow-xl relative">
+                <h2 class="text-2xl font-semibold mb-2">Reports by Category</h2>
+                <div class="chart-container">
+                    <canvas id="categoryChart"></canvas>
+                    <div class="expanded-chart">
+                        <canvas id="expandedCategoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Donut Chart Card -->
+            <div class="chart-card bg-gradient-to-r from-blue-400 to-blue-500 rounded-lg p-6 text-white hover:shadow-xl relative">
+                <h2 class="text-2xl font-semibold mb-2">Reports by Status</h2>
+                <div class="chart-container">
+                    <canvas id="statusChart"></canvas>
+                    <div class="expanded-chart">
+                        <canvas id="expandedStatusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Line Chart Card -->
+            <div class="chart-card bg-gradient-to-r from-green-400 to-green-500 rounded-lg p-6 text-white hover:shadow-xl relative">
+                <h2 class="text-2xl font-semibold mb-2">Monthly Report Trends</h2>
+                <div class="chart-container">
+                    <canvas id="monthlyTrendsChart"></canvas>
+                    <div class="expanded-chart">
+                        <canvas id="expandedMonthlyTrendsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Bar Chart
+        var ctxCategory = document.getElementById('categoryChart').getContext('2d');
+        var categoryChart = new Chart(ctxCategory, {
+            type: 'bar',
+            data: {
+                labels: ['Category 1', 'Category 2', 'Category 3'],
+                datasets: [{
+                    label: 'Number of Reports',
+                    data: [30, 45, 20],
+                    backgroundColor: ['rgba(75, 192, 192, 0.6)', 'rgba(255, 99, 132, 0.6)', 'rgba(54, 162, 235, 0.6)'],
+                    borderColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Donut Chart
+        var ctxStatus = document.getElementById('statusChart').getContext('2d');
+        var statusChart = new Chart(ctxStatus, {
+            type: 'doughnut',
+            data: {
+                labels: ['Pending', 'Resolved', 'In Progress'],
+                datasets: [{
+                    data: [25, 40, 15],
+                    backgroundColor: ['rgba(255, 99, 132, 0.6)', 'rgba(75, 192, 192, 0.6)', 'rgba(54, 162, 235, 0.6)'],
+                    borderColor: ['rgba(255, 99, 132, 1)', 'rgba(75, 192, 192, 1)', 'rgba(54, 162, 235, 1)'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                legend: {
+                    position: 'right',
+                },
+            }
+        });
+
+        // Line Chart
+        var ctxMonthlyTrends = document.getElementById('monthlyTrendsChart').getContext('2d');
+        var monthlyTrendsChart = new Chart(ctxMonthlyTrends, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Report Submissions',
+                    data: [50, 70, 65, 80, 90, 75, 110, 100, 120, 130, 115, 105],
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+
+    <!-- Footer -->
+    <footer class="bg-gray-200 text-center p-4 mt-8">
+        <p class="text-gray-600">Copyright © 2023 Ripoti Taka Program. All rights reserved.</p>
+    </footer>
+</body>
+</html>

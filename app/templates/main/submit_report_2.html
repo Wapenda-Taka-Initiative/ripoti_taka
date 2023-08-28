@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Report - Ripoti Taka Program</title>
+    <!-- Link to Tailwind CSS stylesheet -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <!-- Navigation Bar -->
+    <nav class="bg-blue-500 p-4 text-white">
+        <div class="container mx-auto flex justify-between">
+            <a href="#" class="font-bold text-xl">Ripoti Taka Program</a>
+            <a href="#" class="hover:underline">Logout</a>
+        </div>
+    </nav>
+
+    <!-- Content Section -->
+    <div class="container mx-auto mt-8 p-4 bg-white rounded shadow">
+        <h1 class="text-2xl font-semibold mb-4">Submit a Report</h1>
+        <form>
+            <label class="block mb-2 font-semibold">Location</label>
+            <input type="text" class="w-full px-3 py-2 border rounded focus:ring focus:ring-blue-300 mb-4">
+            
+            <label class="block mb-2 font-semibold">Category</label>
+            <select class="w-full px-3 py-2 border rounded focus:ring focus:ring-blue-300 mb-4">
+                <option value="illegal_dumping">Illegal Dumping</option>
+                <option value="overflowing_bins">Overflowing Bins</option>
+                <!-- Add more options here -->
+            </select>
+            
+            <label class="block mb-2 font-semibold">Description</label>
+            <textarea class="w-full px-3 py-2 border rounded focus:ring focus:ring-blue-300 mb-4" rows="4"></textarea>
+            
+            <label class="block mb-2 font-semibold">Upload Images</label>
+            <input type="file" class="mb-4">
+            
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Submit</button>
+        </form>
+    </div>
+</body>
+</html>

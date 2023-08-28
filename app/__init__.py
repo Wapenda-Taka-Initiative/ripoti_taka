@@ -8,7 +8,7 @@ from flask_login import LoginManager
 
 #set endpoint for the login page
 login_manager = LoginManager()
-#login_manager.login_view = 'authentication.login'
+login_manager.login_view = 'authentication.login'
 
 from config import config
 
@@ -34,14 +34,17 @@ def create_app(config_name):
 
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
-
+    
+    from .authentication import authentication as authentication_blueprint
+    app.register_blueprint(authentication_blueprint)
+    
     from .registration import registration as registration_blueprint
     app.register_blueprint(registration_blueprint)
     
+    from .administration import administration as administration_blueprint
+    app.register_blueprint(administration_blueprint)
+    
     from .profiles import profiles as profiles_blueprint
     app.register_blueprint(profiles_blueprint)
-    
-    from .checkups import checkups as checkups_blueprint
-    app.register_blueprint(checkups_blueprint)
     
     return app

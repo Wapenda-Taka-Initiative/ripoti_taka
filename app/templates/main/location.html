@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Current Location</title>
+</head>
+<body>
+    <div id="location-info">
+        <p>Click the button to get your current location:</p>
+        <button id="getLocationBtn">Get Location</button>
+        <p id="latitude"></p>
+        <p id="longitude"></p>
+    </div>
+
+    <script>
+        const getLocationBtn = document.getElementById('getLocationBtn');
+        const latitudeElement = document.getElementById('latitude');
+        const longitudeElement = document.getElementById('longitude');
+
+        getLocationBtn.addEventListener('click', () => {
+            requestLocation();
+        });
+
+        function requestLocation() {
+            if ('geolocation' in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const latitude = position.coords.latitude;
+                        const longitude = position.coords.longitude;
+
+                        latitudeElement.textContent = `Latitude: ${latitude}`;
+                        longitudeElement.textContent = `Longitude: ${longitude}`;
+                    },
+                    (error) => {
+                        if (error.code === 1) {
+                            console.error('User denied Geolocation.');
+                            latitudeElement.textContent = 'Location access denied.';
+                            longitudeElement.textContent = '';
+                        } else {
+                            console.error('Error getting location:', error.message);
+                            latitudeElement.textContent = 'Location error';
+                            longitudeElement.textContent = '';
+                        }
+                    }
+                );
+            } else {
+                console.error('Geolocation is not supported by this browser.');
+                latitudeElement.textContent = 'Geolocation not supported';
+                longitudeElement.textContent = '';
+            }
+        }
+    </script>
+</body>
+</html>
