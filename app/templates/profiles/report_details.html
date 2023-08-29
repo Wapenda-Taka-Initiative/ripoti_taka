@@ -1,0 +1,98 @@
+{% extends "profiles/user_dashboard_base.html" %}
+
+{% block title %}
+Report Details
+{% endblock title %}
+
+{%block content %}
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<div class="container mx-auto mt-8 p-8 bg-white rounded-lg shadow-lg relative">
+	<!-- Report Details Header -->
+	<header class="bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg p-6 text-white mb-8">
+		<h1 class="text-4xl font-semibold mb-2">Report Details</h1>
+		<p class="text-gray-200">View all the information about this report.</p>
+	</header>
+
+	<!-- Report Card -->
+	<div class="bg-gradient-to-r from-blue-400 to-blue-500 rounded-lg p-6 text-white mb-8">
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+			<div>
+				<h2 class="text-2xl font-semibold mb-2">Report Information</h2>
+				<p class="text-gray-200"><strong>Report ID:</strong> {{ report.reportId }}</p>
+				<p class="text-gray-200"><strong>Date:</strong> {{ moment(report.dateCreated).format('LLLL') }}</p>
+				<p class="text-gray-200"><strong>Category:</strong> {{ report.category.name }}</p>
+				<p class="text-gray-200"><strong>Status:</strong> {{ report.isResolved }}</p>
+				<p class="text-gray-200"><strong>Location:</strong> Latitude: {{ report.latitude }}, Longitude: {{ report.longitude }}</p>
+			</div>
+			<div>
+				<h2 class="text-2xl font-semibold mb-2">Report Description</h2>
+				<p class="text-gray-200">{{ report.description }}</p>
+			</div>
+		</div>
+	</div>
+
+	<!-- Report Images -->
+	<div class="bg-gradient-to-r from-green-400 to-green-500 rounded-lg p-6 text-white mb-8">
+        <h2 class="text-2xl font-semibold mb-4">Report Images</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {% for image in report_images %}
+            <img src="{{ url_for('static', filename='images/reports/' + report.reportId + '/' + image) }}" alt="Report Image {{ loop.index }}" class="rounded-lg shadow-lg">
+            {% endfor %}
+        </div>
+    </div>
+
+	<!-- Map Section -->
+	 <div class="bg-gradient-to-r from-purple-400 to-purple-500 rounded-lg p-6 text-white mb-8">
+        <h2 class="text-2xl font-semibold mb-4">Report Location</h2>
+        <div id="map" style="height: 400px;"></div>
+        <script>
+            // Initialize the map
+            var map = L.map('map').setView([{{ report.latitude }}, {{ report.longitude }}], 15);
+
+            // Add a tile layer (OpenStreetMap)
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            // Add a marker for the report location
+            L.marker([{{ report.latitude }}, {{ report.longitude }}]).addTo(map)
+                .bindPopup("Report Location: {{ report.location }}")
+                .openPopup();
+        </script>
+    </div>
+
+	<!-- User Details -->
+	<div class="bg-gradient-to-r from-indigo-400 to-indigo-500 rounded-lg p-6 text-white mb-8">
+		<h2 class="text-2xl font-semibold mb-4">Reported by</h2>
+		<div class="flex items-center">
+			<img src="user-image.jpg" alt="User Image" class="w-20 h-20 rounded-full mr-4 shadow-lg">
+			<div>
+				<h3 class="text-xl font-semibold">{{ report.user.userName}}</h3>
+				<p class="text-gray-200">Email: {{ report.user.emailAddress }}</p>
+			</div>
+		</div>
+	</div>
+
+	<!-- Comments Section -->
+	<div class="bg-gradient-to-r from-red-400 to-red-500 rounded-lg p-6 text-white mb-8">
+		<h2 class="text-2xl font-semibold mb-4">Add Comment</h2>
+		<form class="mb-4">
+			<textarea class="w-full rounded-lg p-2 focus:outline-none" rows="3" placeholder="Add your comment"></textarea>
+			<button type="submit" class="mt-2 bg-indigo-500 text-white rounded-lg py-2 px-4 hover:bg-indigo-600 focus:outline-none">Submit Comment</button>
+		</form>
+		<h2 class="text-2xl font-semibold mb-4">Comments</h2>
+		<div class="space-y-4">
+			<div class="bg-gray-200 p-4 rounded-lg">
+				<p class="text-gray-600"><strong>Admin:</strong> Thank you for reporting this issue. It has been resolved.</p>
+				<p class="text-gray-400">Posted on April 16, 2023</p>
+			</div>
+			<div class="bg-gray-200 p-4 rounded-lg">
+				<p class="text-gray-600"><strong>User123:</strong> I appreciate the quick response. The area looks much cleaner now.</p>
+				<p class="text-gray-400">Posted on April 16, 2023</p>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock content %}

@@ -11,17 +11,27 @@ Login
 		</div>
 		<div class="w-1/2">
 			<h2 class="text-2xl font-semibold mb-4">Login</h2>
-			<form>
+			<form method="post" action="{{ url_for('authentication.login') }}">
+				{{ form.hidden_tag() }}
 				<div class="mb-4">
-					<label for="email" class="block font-semibold mb-1">Email Address</label>
-					<input type="email" id="email" name="email" class="w-full border rounded-lg py-2 px-3 focus:outline-none focus:border-blue-500" required>
+					<label for="user_name" class="block font-semibold mb-1">Username</label>
+					{{ form.user_name(class="w-full border rounded-lg py-2 px-3 focus:outline-none focus:border-blue-500") }}
+					{% for error in form.user_name.errors %}
+					<p class="text-red-500">{{ error }}</p>
+					{% endfor %}
 				</div>
 				<div class="mb-4">
 					<label for="password" class="block font-semibold mb-1">Password</label>
-					<input type="password" id="password" name="password" class="w-full border rounded-lg py-2 px-3 focus:outline-none focus:border-blue-500" required>
+					{{ form.password(class="w-full border rounded-lg py-2 px-3 focus:outline-none focus:border-blue-500") }}
+					{% for error in form.password.errors %}
+					<p class="text-red-500">{{ error }}</p>
+					{% endfor %}
 				</div>
 				<div class="mb-4 flex items-center">
-					<input type="checkbox" id="remember" name="remember" class="mr-2">
+					{{ form.remember_me(class="mr-2") }}
+					{% for error in form.remember_me.errors %}
+					<p class="text-red-500">{{ error }}</p>
+					{% endfor %}
 					<label for="remember">Remember me</label>
 				</div>
 				<button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-300">Log In</button>

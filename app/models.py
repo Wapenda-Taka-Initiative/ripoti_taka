@@ -6,28 +6,93 @@ from datetime import datetime
 
 from . import db, login_manager
 
+
+class Permission:
+    VISIT = 1
+    MEMBER = 2
+    MODERATE = 4
+    ADMIN = 8
+
+
 @login_manager.user_loader
 def load_user(user_id):
     """
     Queries the database for a record of currently logged in user
     Returns User object containing info about logged in user
     """
-    return user.query.get(int(user_id))
+    return User.query.get(int(user_id))
 
-
-db = SQLAlchemy()
 
 class Role(db.Model):
     __tablename__ = 'role'
     roleId = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(50), nullable=False)
+    default = db.Column(db.Boolean, default = False, index = True)
+    permissions = db.Column(db.Integer)
+
+    users = db.relationship('User', backref = 'role', lazy = 'dynamic')
+
+
+    def __init__(self, **kwargs):
+        super(Role, self).__init__(**kwargs)
+        if self.permissions is None:
+            self.permissions = 0
+
+    
+    @staticmethod
+    def insert_roles():
+        roles = {
+                'Guest' : [Permission.VISIT],
+                'Member' : [Permission.VISIT, Permission.MEMBER],
+                'Administrator' : [Permission.VISIT, Permission.MODERATE, 
+                    Permission.MEMBER, Permission.ADMIN]
+                }
+
+        default_role = 'Guest'
+
+        for r in roles:
+            role = Role.query.filter_by(name = r).first()
+            if role in None:
+                role = Role(name = r)
+
+            role.reset_permission()
+            for perm in roles[r]:
+                role.add_permission(perm)
+
+            role.default = (role.name == default_role)
+            db.session.add(role)
+        db.session.commit()
+
+
+    def add_permission(self, perm):
+        if not self.has_permission(perm):
+            self.permissions += perm
+
+
+    def remove_permission(self, perm):
+        if self.has_permission(perm):
+            self.permissions -= perm
+
+
+    def reset_permission(self):
+        self.permissions = 0
+
+
+    def has_permission(self, perm):
+        return self.permissions & perm == perm
+
 
     def __repr__(self):
         return f"<Role(roleId={self.roleId}, name='{self.name}')>"
 
 
 class Anonymous_User(AnonymousUserMixin):
-    pass
+    def can(self, permission):
+        return False
+
+
+    def is_administrator(self):
+        return False
 
 
 login_manager.anonymous_user = Anonymous_User
@@ -36,19 +101,69 @@ login_manager.anonymous_user = Anonymous_User
 class User(UserMixin, db.Model):
     __tablename__ = 'user'
     userId = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    userName = db.Column(db.String(50), unique=True, nullable=False)
+    firstName = db.Column(db.String(30))
+    middleName = db.Column(db.String(30))
+    lastName = db.Column(db.String(30))
+
+    userName = db.Column(db.String(50), unique = True, nullable = False)
     emailAddress = db.Column(db.String(100), nullable=False)
     passwordHash = db.Column(db.String(100), nullable=False)
+    
+    phoneNumber = db.Column(db.String(20))
+    gender = db.Column(db.String(8), default = "Female", nullable = False)
+    locationAddress = db.Column(db.String(255), default = "Nairobi West")
+    
     dateCreated = db.Column(db.DateTime, default=datetime.utcnow)
     lastUpdated = db.Column(db.DateTime, default=datetime.utcnow, 
             onupdate=datetime.utcnow)
+    
     imageUrl = db.Column(db.String(200))
-    roleId = db.Column(db.Integer, db.ForeignKey('role.roleId'))
+    confirmed = db.Column(db.Boolean, default = False)
+    active = db.Column(db.Boolean, default = True)
 
-    role = db.relationship('Role', backref='users')
+    # relationships
+    roleId = db.Column(db.Integer, db.ForeignKey('role.roleId'))
 
     def __repr__(self):
         return f"<User(userId={self.userId}, userName='{self.userName}', emailAddress='{self.emailAddress}')>"
+
+    
+    def get_id(self):
+        return self.userId
+
+    
+    @property
+    def password(self):
+        raise AttributeError("Password is not a readable attribute")
+
+    @password.setter
+    def password(self, password):
+        self.passwordHash = generate_password_hash(password)
+
+
+    def verify_password(self, password):
+        return check_password_hash(self.passwordHash, password)
+
+
+    def generate_confirmation_token(self, expiration = 3600):
+        s = serializer(flask.current_app.config['SECRET_KEY'], expiration)
+        return s.dumps({'confirm' : self.userId}).decode('utf-8')
+
+
+    def confirm(self, token):
+        s = serializer(flask.current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token.encode('utf-8'))
+        except:
+            return False
+
+        if data.get('confirm') != self.userId:
+            return False
+
+        self.confirmed = True
+        db.session.add(self)
+
+        return True
 
 
 class Reward(db.Model):
@@ -78,7 +193,8 @@ class User_Reward(db.Model):
 class Category(db.Model):
     __tablename__ = 'category'
     categoryId = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(50))
+    name = db.Column(db.String(50), nullable = False)
+    description = db.Column(db.Text)
 
     def __repr__(self):
         return f"<Category(categoryId={self.categoryId}, name='{self.name}')>"
@@ -87,17 +203,20 @@ class Category(db.Model):
 class Report(db.Model):
     __tablename__ = 'report'
     reportId = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    location = db.Column(db.String(255), nullable = False, index = True)
+    description = db.Column(db.Text, nullable = False)
+    latitude = db.Column(db.Float)
+    longitude = db.Column(db.Float)
+    moderated = db.Column(db.Boolean, default=False)
+    isResolved = db.Column(db.Boolean, default=False)
     dateCreated = db.Column(db.DateTime, default=datetime.utcnow)
     lastUpdated = db.Column(db.DateTime, default=datetime.utcnow, 
             onupdate=datetime.utcnow)
-    moderated = db.Column(db.Boolean, default=False)
-    latitude = db.Column(db.Float)
-    longitude = db.Column(db.Float)
-    description = db.Column(db.Text)
-    categoryId = db.Column(db.Integer, db.ForeignKey('category.categoryId'))
-    isResolved = db.Column(db.Boolean, default=False)
 
+    categoryId = db.Column(db.Integer, db.ForeignKey('category.categoryId'))
+    userId = db.Column(db.Integer, db.ForeignKey('user.userId'))
     category = db.relationship('Category', backref='reports')
+    user = db.relationship('User', backref='users')
 
     def __repr__(self):
         return f"<Report(reportId={self.reportId}, description='{self.description}')>"

@@ -8,22 +8,35 @@ Register
 	<div class="bg-white rounded-lg shadow-lg p-8 flex w-11/12 sm:w-3/4 lg:w-2/3 xl:w-1/2">
 		<div class="w-full">
 			<h2 class="text-2xl font-semibold mb-4">Register</h2>
-			<form>
+			<form method="post" action="{{ url_for('registration.register_user') }}">
+				{{ form.hidden_tag() }}
 				<div class="mb-4">
-					<label for="username" class="block font-semibold mb-1">Username</label>
-					<input type="username" id="username" name="username" class="w-full border rounded-lg py-2 px-3 focus:outline-none focus:border-blue-500" required>
+					<label for="user_name" class="block font-semibold mb-1">Username</label>
+					{{ form.user_name(class="w-full border rounded-lg py-2 px-3 focus:outline-none focus:border-blue-500") }}
+					{% for error in form.user_name.errors %}
+					<p class="text-red-500">{{ error }}</p>
+					{% endfor %}
 				</div>
 				<div class="mb-4">
-					<label for="email" class="block font-semibold mb-1">Email Address</label>
-					<input type="email" id="email" name="email" class="w-full border rounded-lg py-2 px-3 focus:outline-none focus:border-blue-500" required>
+					<label for="email_address" class="block font-semibold mb-1">Email Address</label>
+					{{ form.email_address(class="w-full border rounded-lg py-2 px-3 focus:outline-none focus:border-blue-500") }}
+					{% for error in form.email_address.errors %}
+					<p class="text-red-500">{{ error }}</p>
+					{% endfor %}
 				</div>
 				<div class="mb-4">
 					<label for="password" class="block font-semibold mb-1">Password</label>
-					<input type="password" id="password" name="password" class="w-full border rounded-lg py-2 px-3 focus:outline-none focus:border-blue-500" required>
+					{{ form.password(class="w-full border rounded-lg py-2 px-3 focus:outline-none focus:border-blue-500") }}
+					{% for error in form.password.errors %}
+					<p class="text-red-500">{{ error }}</p>
+					{% endfor %}
 				</div>
 				<div class="mb-4">
 					<label for="confirmPassword" class="block font-semibold mb-1">Confirm Password</label>
-					<input type="password" id="confirmPassword" name="confirmPassword" class="w-full border rounded-lg py-2 px-3 focus:outline-none focus:border-blue-500" required>
+					{{ form.confirm_password(class="w-full border rounded-lg py-2 px-3 focus:outline-none focus:border-blue-500") }}
+					{% for error in form.confirm_password.errors %}
+					<p class="text-red-500">{{ error }}</p>
+					{% endfor %}
 				</div>
 				<button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-300">Register</button>
 			</form>

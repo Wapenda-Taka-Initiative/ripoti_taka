@@ -2,3 +2,8 @@ __pycache__/
 **/__pycache__/
 **/.swp
 **/.swo
+**/migrations/
+app/static/images/reports/
+app/static/assets/img/
+data-dev-sqlite
+app/templates/profiles/temp/
