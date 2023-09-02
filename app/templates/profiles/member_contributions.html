@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Engagement and Activity</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <div class="container mx-auto p-6 bg-white rounded-lg shadow-lg mt-8 max-w-screen-md">
+        <h1 class="text-3xl font-semibold mb-6">User Engagement and Activity</h1>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+                <canvas id="stackedBarChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const usernames = {{ usernames|tojson }};
+        const reportCounts = {{ activity_report_counts|tojson }};
+        const commentCounts = {{ comment_counts|tojson }};
+        const rewardCounts = {{ reward_counts|tojson }};
+
+        const ctx = document.getElementById('stackedBarChart').getContext('2d');
+        const stackedBarChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: usernames,
+                datasets: [
+                    {
+                        label: 'Reports Submitted',
+                        data: reportCounts,
+                        backgroundColor: '#F59E0B'
+                    },
+                    {
+                        label: 'Comments Posted',
+                        data: commentCounts,
+                        backgroundColor: '#3B82F6'
+                    },
+                    {
+                        label: 'Rewards Earned',
+                        data: rewardCounts,
+                        backgroundColor: '#10B981'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        stacked: true
+                    },
+                    y: {
+                        stacked: true,
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                if (Number.isInteger(value)) {
+                                    return value;
+                                }
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -5,6 +5,7 @@ Report Details
 {% endblock title %}
 
 {%block content %}
+{{ moment.include_moment() }}
 <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
@@ -23,7 +24,15 @@ Report Details
 				<p class="text-gray-200"><strong>Report ID:</strong> {{ report.reportId }}</p>
 				<p class="text-gray-200"><strong>Date:</strong> {{ moment(report.dateCreated).format('LLLL') }}</p>
 				<p class="text-gray-200"><strong>Category:</strong> {{ report.category.name }}</p>
-				<p class="text-gray-200"><strong>Status:</strong> {{ report.isResolved }}</p>
+				<p class="text-gray-200"><strong>Status:</strong> 
+				<b>
+					{% if report.isResolved %}
+					<span class = "text-green-300">Resolved</span>
+					{% else %}
+					<span class = "text-red-300">Pending</span>
+					{% endif %}
+				</b>
+				</p>
 				<p class="text-gray-200"><strong>Location:</strong> Latitude: {{ report.latitude }}, Longitude: {{ report.longitude }}</p>
 			</div>
 			<div>
@@ -38,7 +47,7 @@ Report Details
         <h2 class="text-2xl font-semibold mb-4">Report Images</h2>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             {% for image in report_images %}
-            <img src="{{ url_for('static', filename='images/reports/' + report.reportId + '/' + image) }}" alt="Report Image {{ loop.index }}" class="rounded-lg shadow-lg">
+            <img src="{{ url_for('static', filename='images/reports/' + report.reportId | string + '/' + image) }}" alt="Report Image {{ loop.index }}" class="rounded-lg shadow-lg">
             {% endfor %}
         </div>
     </div>
@@ -67,7 +76,7 @@ Report Details
 	<div class="bg-gradient-to-r from-indigo-400 to-indigo-500 rounded-lg p-6 text-white mb-8">
 		<h2 class="text-2xl font-semibold mb-4">Reported by</h2>
 		<div class="flex items-center">
-			<img src="user-image.jpg" alt="User Image" class="w-20 h-20 rounded-full mr-4 shadow-lg">
+			<img src={{ report.user.avatar(128)}}" alt="User Image" class="w-20 h-20 rounded-full mr-4 shadow-lg">
 			<div>
 				<h3 class="text-xl font-semibold">{{ report.user.userName}}</h3>
 				<p class="text-gray-200">Email: {{ report.user.emailAddress }}</p>

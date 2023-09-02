@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Distribution of Reports by Category</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <div class="container mx-auto p-8 bg-white rounded-lg shadow-lg mt-8 max-w-screen-md">
+        <h1 class="text-3xl font-semibold mb-6">Distribution of Reports by Category</h1>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+                <canvas id="pieChart" width="400" height="400"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const categoryNames = {{ category_names|tojson }};
+        const reportCounts = {{ report_counts|tojson }};
+
+        const ctx = document.getElementById('pieChart').getContext('2d');
+        const pieChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: categoryNames,
+                datasets: [{
+                    data: reportCounts,
+                    backgroundColor: ['#F59E0B', '#10B981', '#EF4444', '#3B82F6', '#8B5CF6', '#6EE7B7', '#93C5FD', '#FCA5A5'],
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const category = categoryNames[context.dataIndex];
+                                const count = context.dataset.data[context.dataIndex];
+                                return `${category}: ${count} Reports`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

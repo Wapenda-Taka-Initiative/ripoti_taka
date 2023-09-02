@@ -1,6 +1,7 @@
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import AnonymousUserMixin, UserMixin
+from hashlib import md5
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
@@ -38,7 +39,7 @@ class Role(db.Model):
         if self.permissions is None:
             self.permissions = 0
 
-    
+
     @staticmethod
     def insert_roles():
         roles = {
@@ -112,7 +113,11 @@ class User(UserMixin, db.Model):
     phoneNumber = db.Column(db.String(20))
     gender = db.Column(db.String(8), default = "Female", nullable = False)
     locationAddress = db.Column(db.String(255), default = "Nairobi West")
-    
+
+    about_me = db.Column(db.String(140))
+    pointsAcquired = db.Column(db.Integer, default = 0)
+    last_seen = db.Column(db.DateTime, default = datetime.utcnow)
+
     dateCreated = db.Column(db.DateTime, default=datetime.utcnow)
     lastUpdated = db.Column(db.DateTime, default=datetime.utcnow, 
             onupdate=datetime.utcnow)
@@ -132,6 +137,12 @@ class User(UserMixin, db.Model):
         return self.userId
 
     
+    def avatar(self, size):
+        digest = md5(self.emailAddress.lower().encode('utf-8')).hexdigest()
+        return "https://www.gravatar.com/avatar/{}?d=identicon&s={}".format(
+                digest, size)
+
+
     @property
     def password(self):
         raise AttributeError("Password is not a readable attribute")

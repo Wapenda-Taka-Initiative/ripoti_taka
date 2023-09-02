@@ -5,7 +5,7 @@ Create Report
 {% endblock title %}
 
 {%block content %}
-<h4 class="mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300">Report Your Situation</h4>
+<h2 class="my-6 text-2xl font-semibold text-gray-600 dark:text-gray-300">Report Your Situation</h2>
 <div class="container mx-auto mt-8 p-8 bg-white rounded-lg shadow-lg" style="padding: 20px;">
 	<form method="POST" enctype="multipart/form-data" action = "{{ url_for('profiles.create_report') }}">
 		{{ form.hidden_tag() }}

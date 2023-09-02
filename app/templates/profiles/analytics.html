@@ -4,6 +4,125 @@
 Analytics
 {% endblock title %}
 
-{%block content %}
-Analytics
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+
+<header class="bg-gradient-to-r mt-5 from-purple-500 to-purple-600 rounded-lg p-6 text-white mb-8">
+	<h1 class="text-4xl font-semibold mb-2">View Program Analytics</h1>
+	<p class="text-gray-200">Explore insights and data visualizations for informed decisions.</p>
+</header>
+<!-- User Engagement and Activity -->
+<h2 class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200">User Engagement and Activity</h2>
+<div class="w-full mb-8 p-8 bg-white rounded-lg shadow-lg" style="padding: 20px;">
+	<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+		<div>
+			<canvas id="stackedBarChart" width="400" height="300"></canvas>
+		</div>
+	</div>
+</div>
+
+<!-- Distribution of Reports by Category -->
+<h2 class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200">Distribution of Reports by Category</h2>
+<div class="w-full mb-8 p-8 bg-white rounded-lg shadow-lg" style="padding: 20px;">
+	<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+		<div>
+			<canvas id="pieChart" width="400" height="400"></canvas>
+		</div>
+	</div>
+</div>
+
+<script>
+	const usernames = {{ usernames|tojson }};
+	var reportCounts = {{ activity_report_counts|tojson }};
+	const commentCounts = {{ comment_counts|tojson }};
+	const rewardCounts = {{ reward_counts|tojson }};
+
+	const barCtx = document.getElementById('stackedBarChart').getContext('2d');
+	const stackedBarChart = new Chart(barCtx, {
+			type: 'bar',
+			data: {
+					labels: usernames,
+					datasets: [
+							{
+									label: 'Reports Submitted',
+									data: reportCounts,
+									backgroundColor: '#F59E0B'
+								},
+							{
+									label: 'Comments Posted',
+									data: commentCounts,
+									backgroundColor: '#3B82F6'
+								},
+							{
+									label: 'Rewards Earned',
+									data: rewardCounts,
+									backgroundColor: '#10B981'
+								}
+						]
+				},
+			options: {
+					responsive: true,
+					maintainAspectRatio: false,
+					scales: {
+							x: {
+									stacked: true
+								},
+							y: {
+									stacked: true,
+									beginAtZero: true,
+									ticks: {
+											callback: function (value) {
+													if (Number.isInteger(value)) {
+															return value;
+														}
+												}
+										}
+								}
+						},
+					plugins: {
+							legend: {
+									display: true,
+									position: 'bottom'
+								}
+						}
+				}
+		});
+</script>
+<script>
+	const categoryNames = {{ category_names|tojson }};
+	var reportCounts = {{ report_counts|tojson }};
+
+	const pieCtx = document.getElementById('pieChart').getContext('2d');
+	const pieChart = new Chart(pieCtx, {
+			type: 'pie',
+			data: {
+					labels: categoryNames,
+					datasets: [{
+							data: reportCounts,
+							backgroundColor: ['#F59E0B', '#10B981', '#EF4444', '#3B82F6', '#8B5CF6', '#6EE7B7', '#93C5FD', '#FCA5A5'],
+						}]
+				},
+			options: {
+					responsive: true,
+					maintainAspectRatio: false,
+					plugins: {
+							legend: {
+									position: 'right',
+								},
+							tooltip: {
+									callbacks: {
+											label: function (context) {
+													const category = categoryNames[context.dataIndex];
+													const count = context.dataset.data[context.dataIndex];
+													return `${category}: ${count} Reports`;
+												}
+										}
+								}
+						}
+				}
+		});
+	pieChart.render();
+</script>
+
 {% endblock content %}

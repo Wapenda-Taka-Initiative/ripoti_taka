@@ -25,7 +25,13 @@
 					<li><a href="{{ url_for('main.index')}}" class="hover:text-blue-300">Home</a></li>
 					<li><a href="{{ url_for('main.get_involved')}}" class="hover:text-blue-300">Get Involved</a></li>
 					<li><a href="{{ url_for('main.contact_us')}}" class="hover:text-blue-300">Contact</a></li>
-					<li><a href="{{ url_for('authentication.login')}}" class="hover:text-blue-300">Sign In</a></li>
+					<li>
+					{% if current_user.is_authenticated %}
+					<a href="{{ url_for('profiles.dashboard')}}" class="hover:text-blue-300">Dashboard</a>
+					{% else %}
+					<a href="{{ url_for('authentication.login')}}" class="hover:text-blue-300">Sign In</a>
+					{% endif %}
+					</li>
 				</ul>
 			</div>
 		</nav>
