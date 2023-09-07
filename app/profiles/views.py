@@ -1,9 +1,10 @@
 import os
 import flask
 import glob
+import flask_socketio as _socketio
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
-from sqlalchemy import func
+from sqlalchemy import func, or_
 from geopy.geocoders import ArcGIS
 from datetime import timedelta, datetime
 from . import profiles
@@ -59,7 +60,7 @@ def create_report():
 
         # Create a folder for the report's images
         report_folder = os.path.join(
-                flask.current_app.config['REPORT_IMAGES_UPLOAD_PATH'],
+                flask.current_profiles.config['REPORT_IMAGES_UPLOAD_PATH'],
                 str(report.reportId))
         os.makedirs(report_folder, exist_ok = True)
 
@@ -155,9 +156,9 @@ def analytics():
 
     return flask.render_template('profiles/analytics.html', dates = dates,
             counts = counts, category_names = category_names,
-            activity_report_counts = activity_report_counts, usernames =usernames, 
-            report_counts = report_counts, comment_counts = comment_counts, 
-            reward_counts = reward_counts,  
+            activity_report_counts = activity_report_counts, usernames =usernames,
+            report_counts = report_counts, comment_counts = comment_counts,
+            reward_counts = reward_counts,
             contributor_usernames = contributor_usernames,
             contributor_report_counts = contributor_report_counts,
             reward_names = reward_names, top_reward_counts = top_reward_counts)
@@ -173,7 +174,7 @@ def explore():
                     .order_by(func.count(Report.reportId).desc())\
                     .limit(4)
     new_members = User.query.filter(
-            User.dateCreated >= (datetime.utcnow() - timedelta(days = 7)))
+            User.dateCreated >= (datetime.utcnow() - timedelta(days = 7))).all()
 
     members = User.query.order_by(User.userName).all()
     return flask.render_template('profiles/explore.html', members = members,
@@ -208,17 +209,35 @@ def manage_categories():
             categories = categories)
 
 
-@profiles.route('/report_details/<int:report_id>')
+@profiles.route('/report_details/<int:report_id>', methods = ['GET', 'POST'])
 @login_required
 def report_details(report_id):
     report = Report.query.filter_by(reportId = report_id).first_or_404()
+
+    if flask.request.method == 'POST':
+        comment_content = flask.request.form.get('comment-input')
+
+        if comment_content:
+            new_comment = Comment(content = comment_content, report = report)
+            db.session.add(new_comment)
+            db.session.commit()
+
+            return flask.redirect(flask.url_for('profiles.report_details', 
+                report_id = report_id))
+    
+    # retrieve image files associated with the report
     report_folder = os.path.join(
             flask.current_app.config['REPORT_IMAGES_UPLOAD_PATH'],
             str(report.reportId))
     report_images = glob.glob(os.path.join(report_folder, '*.jpg'))
     report_images = [image.rsplit('/')[-1] for image in report_images]
+
+    # fetch comments associated with the report
+    comments = Comment.query.filter_by(reportId = report_id)\
+            .order_by(Comment.dateCreated.desc()).all()
+
     return flask.render_template('profiles/report_details.html',
-            report_images = report_images, report = report)
+            report_images = report_images, report = report, comments = comments)
 
 
 @profiles.route('/manage_reports')
@@ -263,7 +282,16 @@ def manage_users():
 @profiles.route('/personal_analytics')
 @login_required
 def personal_analytics():
-    return flask.render_template('profiles/personal_analytics.html')
+    assigned_rewards = User_Reward.query.filter(
+            User.userId == current_user.userId).all()
+    claimed_rewards = User_Reward.query.filter(
+            User.userId == current_user.userId).all()
+    rewards_eligible = Reward.query.filter(
+            Reward.pointsRequired <= int(current_user.pointsAcquired)).all()
+    rewards = Reward.query.all()
+    return flask.render_template('profiles/personal_analytics.html', 
+            claimed_rewards = claimed_rewards, assigned_rewards = assigned_rewards,
+            rewards = rewards, rewards_eligible = rewards_eligible)
 
 
 @profiles.route('/user_profile/<int:user_id>')
@@ -271,3 +299,19 @@ def personal_analytics():
 def contributor_profile(user_id):
     user = User.query.get(user_id)
     return flask.render_template('profiles/user_profile.html', user = user)
+
+
+@profiles.route('/search_reports', methods = ['GET', 'POST'])
+@login_required
+def search_reports():
+    search_term = flask.request.form['search-term']
+    reports = (
+            db.session.query(Report).filter(
+                or_(
+                    Report.location.like(f"%{search_term}%"),
+                    Report.description.like(f"%{search_term}%"),
+                    Category.name.like(f"%{search_term}%")
+                    )
+                ).all()
+            )
+    return flask.render_template('profiles/latest_reports.html', reports = reports)

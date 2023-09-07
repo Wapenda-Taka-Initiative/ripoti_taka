@@ -18,7 +18,11 @@ Explore Community
 		{% for contributor, report_count in top_contributors %}
 		<div class="bg-white rounded-lg shadow-lg overflow-hidden transform transition-transform hover:scale-105">
 			<div class="relative">
+				{% if contributor.imageUrl %}
+				<img src="{{ url_for('static', filename = 'images/profiles/' + contributor.imageUrl) }}" alt="Contributor Avatar" class="w-full h-44 object-cover">
+				{% else %}
 				<img src="{{ contributor.avatar(300)}}" alt="Contributor Avatar" class="w-full h-44 object-cover">
+				{% endif %}
 				<span class="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-semibold">VIP</span>
 			</div>
 			<div class="p-4">
@@ -34,6 +38,7 @@ Explore Community
 </section>
 
 <!-- New Members Section -->
+{% if new_members %}
 <section class="mb-8">
 	<header class="bg-gradient-to-l from-yellow-500 to-yellow-600 rounded-lg p-6 text-white mb-8">
 		<h1 class="text-4xl font-semibold mb-2">Embracing Fresh Beginnings</h1>
@@ -43,7 +48,11 @@ Explore Community
 		{% for member in new_members %}
 		<div class="bg-white rounded-lg shadow-lg overflow-hidden transform transition-transform hover:scale-105">
 			<div class="relative">
-				<img src="{{ member.avatar(300)}}" alt="New Member Avatar" class="w-full h-56 object-cover">
+				{% if member.imageUrl %}
+				<img src="{{ url_for('static', filename = 'images/profiles/' + member.imageUrl) }}" alt="Contributor Avatar" class="w-full h-44 object-cover">
+				{% else %}
+				<img src="{{ member.avatar(300)}}" alt="Contributor Avatar" class="w-full h-44 object-cover">
+				{% endif %}
 				<span class="absolute top-3 right-3 bg-green-500 text-white py-1 px-2 rounded-full text-xs font-semibold">New</span>
 			</div>
 			<div class="p-4">
@@ -60,6 +69,7 @@ Explore Community
 		{% endfor %}
 	</div>
 </section>
+{% endif %}
 
 <!-- Paginated Members Section -->
 <section class="mb-8">
@@ -70,7 +80,11 @@ Explore Community
 		{% for member in members %}
 		<div class="bg-white rounded-lg shadow-md overflow-hidden transform transition-transform hover:scale-105">
 			<div class="relative">
-				<img src="{{ member.avatar(300)}}" alt="Member Avatar" class="w-full h-56 object-cover">
+				{% if member.imageUrl %}
+				<img src="{{ url_for('static', filename = 'images/profiles/' + member.imageUrl) }}" alt="Contributor Avatar" class="w-full h-44 object-cover">
+				{% else %}
+				<img src="{{ member.avatar(300)}}" alt="Contributor Avatar" class="w-full h-44 object-cover">
+				{% endif %}
 				<span class="absolute top-3 right-3 bg-indigo-500 text-white py-1 px-2 rounded-full text-xs font-semibold">Member</span>
 			</div>
 			<div class="p-4">

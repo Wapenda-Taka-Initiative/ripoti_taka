@@ -24,7 +24,7 @@ Report Details
 				<p class="text-gray-200"><strong>Report ID:</strong> {{ report.reportId }}</p>
 				<p class="text-gray-200"><strong>Date:</strong> {{ moment(report.dateCreated).format('LLLL') }}</p>
 				<p class="text-gray-200"><strong>Category:</strong> {{ report.category.name }}</p>
-				<p class="text-gray-200"><strong>Status:</strong> 
+				<p class="text-gray-200"><strong>Status:</strong>
 				<b>
 					{% if report.isResolved %}
 					<span class = "text-green-300">Resolved</span>
@@ -42,66 +42,70 @@ Report Details
 		</div>
 	</div>
 
-	<!-- Report Images -->
-	<div class="bg-gradient-to-r from-green-400 to-green-500 rounded-lg p-6 text-white mb-8">
-        <h2 class="text-2xl font-semibold mb-4">Report Images</h2>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {% for image in report_images %}
-            <img src="{{ url_for('static', filename='images/reports/' + report.reportId | string + '/' + image) }}" alt="Report Image {{ loop.index }}" class="rounded-lg shadow-lg">
-            {% endfor %}
-        </div>
-    </div>
-
-	<!-- Map Section -->
-	 <div class="bg-gradient-to-r from-purple-400 to-purple-500 rounded-lg p-6 text-white mb-8">
-        <h2 class="text-2xl font-semibold mb-4">Report Location</h2>
-        <div id="map" style="height: 400px;"></div>
-        <script>
-            // Initialize the map
-            var map = L.map('map').setView([{{ report.latitude }}, {{ report.longitude }}], 15);
-
-            // Add a tile layer (OpenStreetMap)
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
-
-            // Add a marker for the report location
-            L.marker([{{ report.latitude }}, {{ report.longitude }}]).addTo(map)
-                .bindPopup("Report Location: {{ report.location }}")
-                .openPopup();
-        </script>
-    </div>
-
 	<!-- User Details -->
 	<div class="bg-gradient-to-r from-indigo-400 to-indigo-500 rounded-lg p-6 text-white mb-8">
 		<h2 class="text-2xl font-semibold mb-4">Reported by</h2>
 		<div class="flex items-center">
-			<img src={{ report.user.avatar(128)}}" alt="User Image" class="w-20 h-20 rounded-full mr-4 shadow-lg">
+			{% if report.user.imageUrl %}
+			<img src="{{ url_for('static', filename = 'images/profiles/' + report.user.imageUrl) }}" alt="User Image" class="w-20 h-20 rounded-full mr-4 shadow-lg">
+			{% else %}
+			<img src="{{ report.user.avatar(128)}}" alt="User Image" class="w-20 h-20 rounded-full mr-4 shadow-lg">
+			{% endif %}
 			<div>
 				<h3 class="text-xl font-semibold">{{ report.user.userName}}</h3>
-				<p class="text-gray-200">Email: {{ report.user.emailAddress }}</p>
 			</div>
 		</div>
+	</div>
+
+
+	<!-- Report Images -->
+	<div class="bg-gradient-to-r from-green-400 to-green-500 rounded-lg p-6 text-white mb-8">
+		<h2 class="text-2xl font-semibold mb-4">Report Images</h2>
+		<div class="grid grid-cols-2 md:grid-cols-2 gap-4">
+			{% for image in report_images %}
+			<img src="{{ url_for('static', filename='images/reports/' + report.reportId | string + '/' + image) }}" alt="Report Image {{ loop.index }}" class="rounded-lg shadow-lg">
+			{% endfor %}
+		</div>
+	</div>
+
+	<!-- Map Section -->
+	<div class="bg-gradient-to-r from-purple-400 to-purple-500 rounded-lg p-6 text-white mb-8">
+		<h2 class="text-2xl font-semibold mb-4">Report Location</h2>
+		<div id="map" style="height: 400px;"></div>
+		<script>
+			// Initialize the map
+			var map = L.map('map').setView([{{ report.latitude }}, {{ report.longitude }}], 15);
+
+			// Add a tile layer (OpenStreetMap)
+			L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+							attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+						}).addTo(map);
+
+			// Add a marker for the report location
+			L.marker([{{ report.latitude }}, {{ report.longitude }}]).addTo(map)
+				.bindPopup("Report Location: {{ report.location }}")
+				.openPopup();
+		</script>
 	</div>
 
 	<!-- Comments Section -->
 	<div class="bg-gradient-to-r from-red-400 to-red-500 rounded-lg p-6 text-white mb-8">
 		<h2 class="text-2xl font-semibold mb-4">Add Comment</h2>
-		<form class="mb-4">
-			<textarea class="w-full rounded-lg p-2 focus:outline-none" rows="3" placeholder="Add your comment"></textarea>
+		<form class="mb-4" method = "POST" action = "{{ url_for('profiles.report_details', report_id = report.reportId) }}">
+			<textarea class="w-full rounded-lg p-2 focus:outline-none text-gray-800" name="comment-input" rows="3" placeholder="Add your comment"></textarea>
 			<button type="submit" class="mt-2 bg-indigo-500 text-white rounded-lg py-2 px-4 hover:bg-indigo-600 focus:outline-none">Submit Comment</button>
 		</form>
+		{% if comments %}
 		<h2 class="text-2xl font-semibold mb-4">Comments</h2>
 		<div class="space-y-4">
+			{% for comment in comments %}
 			<div class="bg-gray-200 p-4 rounded-lg">
-				<p class="text-gray-600"><strong>Admin:</strong> Thank you for reporting this issue. It has been resolved.</p>
-				<p class="text-gray-400">Posted on April 16, 2023</p>
+				<p class="text-gray-600"><strong>@{{ comment.report.user.userName }}</strong> {{ comment.content}}</p>
+				<p class="text-gray-400">Posted on {{ moment(comment.dateCreated).format('LLLL')}}</p>
 			</div>
-			<div class="bg-gray-200 p-4 rounded-lg">
-				<p class="text-gray-600"><strong>User123:</strong> I appreciate the quick response. The area looks much cleaner now.</p>
-				<p class="text-gray-400">Posted on April 16, 2023</p>
-			</div>
+			{% endfor %}
 		</div>
+		{% endif %}
 	</div>
 </div>
 {% endblock content %}

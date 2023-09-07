@@ -87,4 +87,62 @@ Personal Analytics
 		</div>
 	</div>
 </div>
+
+<!-- Rewards you are eligible -->
+{% if rewards_eligible %}
+<h2 class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200">Claim Your Reward Today!!!</h2>
+<div class="w-full mb-8 overflow-hidden rounded-lg shadow-xs">
+	<div class="w-full overflow-x-auto">
+		<table class="w-full whitespace-no-wrap">
+			<thead>
+				<tr class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800">
+					<th class="px-4 py-3">Reward Name</th>
+					<th class="px-4 py-3">Points Required</th>
+					<th class="px-4 py-3">Actions</th>
+				</tr>
+			</thead>
+			<tbody class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800">
+				{% for reward in rewards_eligible %}
+				{% if reward.pointsRequired == current_user.pointsAcquired %}
+				<tr class="text-gray-700 dark:text-gray-400">
+					<td class="px-4 py-3">{{ reward.name }}</td>
+					<td class="px-4 py-3">{{ reward.pointsRequired }}</td>
+					<td class="px-4 py-3">
+						<button class="text-purple-600 hover:text-purple-900">Claim</button>
+					</td>
+				</tr>
+				{% endif %}
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</div>
+{% else %}
+<h2 class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200">
+	Oops!!! You are not eligible to win any reward. 
+</h2>
+<h4 class="mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300">
+	Increase your participation to increase your chances of winnning the prices below.
+</h4>
+<div class="w-full mb-8 overflow-hidden rounded-lg shadow-xs">
+	<div class="w-full overflow-x-auto">
+		<table class="w-full whitespace-no-wrap">
+			<thead>
+				<tr class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800">
+					<th class="px-4 py-3">Reward Name</th>
+					<th class="px-4 py-3">Points Required</th>
+				</tr>
+			</thead>
+			<tbody class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800">
+				{% for reward in rewards %}
+				<tr class="text-gray-700 dark:text-gray-400">
+					<td class="px-4 py-3">{{ reward.name }}</td>
+					<td class="px-4 py-3">{{ reward.pointsRequired }}</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</div>
+{% endif %}
 {% endblock content %}

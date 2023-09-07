@@ -147,7 +147,7 @@
 						</a>
 							<ul class="mt-6">
 								<li class="relative px-6 py-3">
-									<a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200" href="index.html" >
+									<a class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200" href="{{ url_for('profiles.dashboard') }}" >
 										<svg class="w-5 h-5" aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor" >
 											<path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" >
 											</path>
@@ -249,7 +249,10 @@
 												</path>
 											</svg>
 										</div>
-										<input class="w-full pl-8 pr-2 text-sm text-gray-700 placeholder-gray-600 bg-gray-100 border-0 rounded-md dark:placeholder-gray-500 dark:focus:shadow-outline-gray dark:focus:placeholder-gray-600 dark:bg-gray-700 dark:text-gray-200 focus:placeholder-gray-500 focus:bg-white focus:border-purple-300 focus:outline-none focus:shadow-outline-purple form-input" type="text" placeholder="Search for reports" aria-label="Search" />
+										<form id = "search-form" action = "{{ url_for('profiles.search_reports') }}" method = "POST">
+											<input id = "search-term" name = "search-term" class="w-full pl-8 pr-2 text-sm text-gray-700 placeholder-gray-600 bg-gray-100 border-0 rounded-md dark:placeholder-gray-500 dark:focus:shadow-outline-gray dark:focus:placeholder-gray-600 dark:bg-gray-700 dark:text-gray-200 focus:placeholder-gray-500 focus:bg-white focus:border-purple-300 focus:outline-none focus:shadow-outline-purple form-input" type="text" placeholder="Search for reports" aria-label="Search" />
+											<button type = "submit" hidden>Search</button>
+										</form>
 									</div>
 								</div>
 								<ul class="flex items-center flex-shrink-0 space-x-6">
@@ -314,7 +317,11 @@
 									<!-- Profile menu -->
 									<li class="relative">
 										<button class="align-middle rounded-full focus:shadow-outline-purple focus:outline-none" @click="toggleProfileMenu" @keydown.escape="closeProfileMenu" aria-label="Account" aria-haspopup="true" >
-											<img class="object-cover w-8 h-8 rounded-full" src="{{ current_user.avatar(200) }}" alt="" aria-hidden="true" />
+										{% if current_user.imageUrl %}
+										<img src="{{ url_for('static', filename = 'images/profiles/' + current_user.imageUrl) }}" class="w-8 h-8 rounded-full" alt="Profile Picture"  aria-hidden="true">
+										{% else %}
+										<img class="object-cover w-8 h-8 rounded-full" src="{{ current_user.avatar(200) }}" alt="Profile Picture" aria-hidden="true" />
+										{% endif %}
 										</button>
 											<template x-if="isProfileMenuOpen">
 												<ul x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" @click.away="closeProfileMenu" @keydown.escape="closeProfileMenu" class="absolute right-0 w-56 p-2 mt-2 space-y-2 text-gray-600 bg-white border border-gray-100 rounded-md shadow-md dark:border-gray-700 dark:text-gray-300 dark:bg-gray-700" aria-label="submenu" >
@@ -354,4 +361,16 @@
 				</div>
 		</div>
 	</body>
+	<script>
+		document.addEventListener('DOMContentLoaded', function() {
+			const searchForm = document.getElementById('search-form');
+			const searchInput = document.getElementById('search-term');
+			searchInput.addEventListener('keypress', function(even) {
+				if (event.key === 'Enter') {
+					event.preventDefault();
+					searchForm.submit();
+				}
+			});
+		});
+	</script>
 </html>

@@ -1,0 +1,70 @@
+{% extends "profiles/user_dashboard_base.html" %}
+
+{% block title %}
+Dashboard
+{% endblock title %}
+
+{% block scripts %}
+{{ super() }}
+{% endblock scripts %}
+
+{%block content %}
+<h2 class="my-6 text-2xl font-semibold text-gray-600 dark:text-gray-300">Update User Profile</h2>
+<div class="bg-white rounded-lg shadow-lg p-8 flex w-11/12 sm:w-3/4 lg:w-2/3 xl:w-1/2 p-4">
+	<div class="w-full">
+		<form method="post" action="{{ url_for('registration.edit_user_profile', user_id = user_id) }}">
+			{{ form.hidden_tag() }}
+			<div class="mb-4">
+				<label for="firstName" class="block font-semibold mb-1">First Name</label>
+				{{ form.firstName(class="w-full border rounded-lg py-2 px-3 focus:outline-none focus:border-blue-500") }}
+				{% for error in form.firstName.errors %}
+				<p class="text-red-500">{{ error }}</p>
+				{% endfor %}
+			</div>
+			<div class="mb-4">
+				<label for="middleName" class="block font-semibold mb-1">Middle Name</label>
+				{{ form.middleName(class="w-full border rounded-lg py-2 px-3 focus:outline-none focus:border-blue-500") }}
+				{% for error in form.middleName.errors %}
+				<p class="text-red-500">{{ error }}</p>
+				{% endfor %}
+			</div>
+			<div class="mb-4">
+				<label for="lastName" class="block font-semibold mb-1">Last Name</label>
+				{{ form.lastName(class="w-full border rounded-lg py-2 px-3 focus:outline-none focus:border-blue-500") }}
+				{% for error in form.lastName.errors %}
+				<p class="text-red-500">{{ error }}</p>
+				{% endfor %}
+			</div>
+			<div class="mb-4">
+				<label for="phoneNumber" class="block font-semibold mb-1">Phone Number</label>
+				{{ form.phoneNumber(class="w-full border rounded-lg py-2 px-3 focus:outline-none focus:border-blue-500") }}
+				{% for error in form.phoneNumber.errors %}
+				<p class="text-red-500">{{ error }}</p>
+				{% endfor %}
+			</div>
+			<div class="mb-4">
+				<label for="gender" class="block font-semibold mb-1">Select Gender</label>
+				{{ form.gender(class="w-full border rounded-lg py-2 px-3 focus:outline-none focus:border-blue-500") }}
+				{% for error in form.gender.errors %}
+				<p class="text-red-500">{{ error }}</p>
+				{% endfor %}
+			</div>
+			<div class="mb-4">
+				<label for="locationAddress" class="block font-semibold mb-1">Location Address</label>
+				{{ form.locationAddress(class="w-full border rounded-lg py-2 px-3 focus:outline-none focus:border-blue-500") }}
+				{% for error in form.locationAddress.errors %}
+				<p class="text-red-500">{{ error }}</p>
+				{% endfor %}
+			</div>
+			<div class="mb-4">
+				<label for="about_me" class="block font-semibold mb-1">About Me</label>
+				{{ form.about_me(class="w-full border rounded-lg py-2 px-3 focus:outline-none focus:border-blue-500") }}
+				{% for error in form.about_me.errors %}
+				<p class="text-red-500">{{ error }}</p>
+				{% endfor %}
+			</div>
+			<button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-300">Save Updates</button>
+		</form>
+	</div>
+</div>
+{% endblock content %}

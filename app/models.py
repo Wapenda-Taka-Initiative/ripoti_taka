@@ -128,6 +128,11 @@ class User(UserMixin, db.Model):
 
     # relationships
     roleId = db.Column(db.Integer, db.ForeignKey('role.roleId'))
+    
+    def __init__(self, **kwargs):
+        super(User, self).__init__(**kwargs)
+        if self.pointsAcquired is None:
+            self.pointsAcquired = 5
 
     def __repr__(self):
         return f"<User(userId={self.userId}, userName='{self.userName}', emailAddress='{self.emailAddress}')>"
@@ -192,7 +197,9 @@ class User_Reward(db.Model):
     userRewardId = db.Column(db.Integer, primary_key=True, autoincrement=True)
     userId = db.Column(db.Integer, db.ForeignKey('user.userId'))
     rewardId = db.Column(db.Integer, db.ForeignKey('reward.rewardId'))
-    dateAssigned = db.Column(db.DateTime, default=datetime.utcnow)
+    dateAssigned = db.Column(db.DateTime, default=datetime.utcnow, 
+            onupdate = datetime.utcnow)
+    isAssigned = db.Column(db.Boolean, default=False)
 
     user = db.relationship('User', backref='user_rewards')
     reward = db.relationship('Reward', backref='user_rewards')
