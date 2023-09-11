@@ -1,13 +1,17 @@
 import flask
 import os
-from flask_login import current_user
+from flask_login import current_user, login_required
 from . import registration
-from .forms import RegistrationForm, EditUserProfileForm
+from .forms import (RegistrationForm, EditUserProfileForm, ResetPasswordForm, 
+        ResetUsernameForm, ResetEmailForm)
+from .utilities import send_password_reset_email
 from .. import db
 from ..models import User
+from ..email import send_email
 
 
 @registration.route('/edit_profile_image/<int:user_id>', methods = ['GET', 'POST'])
+@login_required
 def edit_profile_image(user_id):
     user = User.query.get(user_id)
     image_file = flask.request.files.get('profile-image')
@@ -47,13 +51,17 @@ def register_user():
                 password = form.password.data)
         db.session.add(user)
         db.session.commit()
-        flask.flash("Registration successful. Welcome to the revolution!!!")
-        return flask.redirect(flask.url_for('authentication.login'))
+        token = user.generate_confirmation_token()
+        send_email(user.email, "Confirm Your Account", 
+                "authentication/email/confirm", user = user, token = token)
+        flask.flash("A confirmation email has been sent to you.")
+        return flask.redirect(flask.url_for('main.index'))
 
     return flask.render_template('registration/register_user.html', form = form)
 
 
 @registration.route('/edit_user_profile/<int:user_id>', methods = ['GET', 'POST'])
+@login_required
 def edit_user_profile(user_id):
     user = User.query.get(user_id)
 
@@ -88,3 +96,78 @@ def edit_user_profile(user_id):
     
     return flask.render_template('registration/edit_user_profile.html', 
             form = form, user_id = user_id)
+
+
+# Reset password endpoint functions
+@registration.route('/reset_password_request')
+@login_required
+def reset_password_request():
+    send_password_reset_email(user)
+    flask.flash("Check your email for the instruction to reset your password")
+    return flask.redirect(flask.url_for('authentication.logout'))
+
+
+@registration.route('/reset_password/<token>', method = ['GET', 'POST'])
+def reset_password(token):
+    user = User.verify_reset_credential_token(token)
+    if not user:
+        return flask.redirect(url_for('main.index'))
+    
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        user.password = form.password.data
+        db.session.commit()
+        flask.flash('Your password has been reset successfully')
+        return flask.redirect(flask.url_for('authentication.login'))
+
+    return flask.render_template('registration/reset_password.html', form = form)
+
+
+# Reset password endpoint functions
+@registration.route('/reset_username_request')
+@login_required
+def reset_username_request():
+    send_username_reset_email(user)
+    flask.flash("Check your email for the instruction to reset your username")
+    return flask.redirect(flask.url_for('authentication.logout'))
+
+
+@registration.route('/reset_username/<token>', method = ['GET', 'POST'])
+def reset_username(token):
+    user = User.verify_reset_credential_token(token)
+    if not user:
+        return flask.redirect(url_for('main.index'))
+    
+    form = ResetUsernameForm()
+    if form.validate_on_submit():
+        user.userName = form.user_name.data
+        db.session.commit()
+        flask.flash('Your username has been reset successfully')
+        return flask.redirect(flask.url_for('authentication.login'))
+
+    return flask.render_template('registration/reset_username.html', form = form)
+
+
+# Reset email endpoint functions
+@registration.route('/reset_email_request')
+@login_required
+def reset_email_request():
+    send_email_reset_email(user)
+    flask.flash("Check your email for the instruction to reset your email")
+    return flask.redirect(flask.url_for('authentication.logout'))
+
+
+@registration.route('/reset_email/<token>', method = ['GET', 'POST'])
+def reset_email(token):
+    user = User.verify_reset_credential_token(token)
+    if not user:
+        return flask.redirect(url_for('main.index'))
+    
+    form = ResetEmailForm()
+    if form.validate_on_submit():
+        user.emailAddress = form.email_address.data
+        db.session.commit()
+        flask.flash('Your email has been reset successfully')
+        return flask.redirect(flask.url_for('authentication.login'))
+
+    return flask.render_template('registration/reset_email.html', form = form)

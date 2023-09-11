@@ -1,9 +1,18 @@
 import flask
-from flask_login import login_user, logout_user, login_required
+from flask_login import login_user, logout_user, login_required, current_user
 from . import authentication
 from .forms import LoginForm
 from .. import db
 from ..models import User
+
+
+@authentication.before_app_request
+def before_request():
+    if current_user.is_authenticated and not current_user.confirmed \
+            and flask.request.blueprint != 'authentication' \
+            and flask.request.blueprint != 'static':
+                return flask.redirect(flask.url_for('authentication.unconfirmed'))
+
 
 @authentication.route('/logout')
 @login_required
@@ -34,3 +43,40 @@ def login():
 @authentication.route('/forgot_password')
 def forgot_password():
     return flask.render_template('authentication/forgot_password.html')
+
+
+@authentication.route('/unconfirmed')
+def unconfirmed():
+    if current_user.is_anonymous:
+        return flask.redirect(flask.url_for('main.index'))
+
+    elif current_user.confirmed:
+        return flask.redirect(flask.url_for('profiles.dashboard'))
+
+    return flask.render_template('authentication/unconfirmed.html')
+
+
+@authentication.route('/confirm/<token>')
+@login_required
+def confirm(token):
+    if current_user.confirmed:
+        return flask.redirect(flask.url_for('main.index'))
+
+    if current_user.confirm():
+        db.session.commit()
+        flask.flash("You have confirmed your account successfully. Welcome!!!")
+
+    else:
+        flask.flash("The confirmation link is invalid or has expired")
+    
+    return flask.redirect(flask.url_for('main.index'))
+
+
+@authentication.route('/confirm')
+@login_required
+def resend_confirmation_link():
+    token = current_user.generate_confirmation_token()
+    send_email(current_user.email, "Welcome to the Ripoti Taka Program!", 
+            "authentication/email/confirm", user = current_user, token = token)
+    flask.flash("A new confirmation email has been sent to you by email")
+    return flask.redirect(flask.url_for('main.index'))

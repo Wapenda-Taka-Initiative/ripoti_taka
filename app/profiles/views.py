@@ -2,6 +2,7 @@ import os
 import flask
 import glob
 import flask_socketio as _socketio
+from flask_sqlalchemy import get_debug_queries
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 from sqlalchemy import func, or_
@@ -11,6 +12,17 @@ from . import profiles
 from .forms import CreateReportForm, CreateCategoryForm, CreateRewardForm
 from .. import db
 from ..models import User, Report, Category, Status, Comment, User_Reward, Reward
+
+
+@profiles.after_app_request
+def after_request(response):
+    for query in get_debug_queries():
+        if query.duration >= flask.current_app.config['SLOW_DB_QUERY_TIME']:
+            flask.current_app.logger.warning(
+                    "Slow query: %s\nParameters: %s\nDuration: %fs\nContext: %s\n"
+                    % (query.statement, query.parameters, query.duration, 
+                        query.context))
+    return response
 
 
 @profiles.route('/user_profile')

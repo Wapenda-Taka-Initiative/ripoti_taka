@@ -38,3 +38,18 @@ class EditUserProfileForm(FlaskForm):
     locationAddress = StringField('Residential Address', 
             validators=[DataRequired(), Length(1, 128)])
     about_me = TextAreaField('About Me', validators=[Length(1, 192)])
+
+
+class ResetPasswordForm(FlaskForm):
+    password = PasswordField('Enter New Password', validators = [DataRequired()])
+    password2 = PasswordField('Repeat Password', 
+            validators = [DataRequired(), EqualTo('password')])
+
+class ResetUsernameForm(FlaskForm):
+    user_name = StringField("Enter New Username", validators = [InputRequired(), 
+        Length(3, 64)])
+
+
+class ResetEmailForm(FlaskForm):
+    email_address = StringField("Enter New Email Address", 
+            validators = [InputRequired(), Email(), Length(10, 128)])

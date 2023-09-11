@@ -1,7 +1,8 @@
+import hashlib
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import TimedJSONWebSignatureSerializer
 from flask_login import AnonymousUserMixin, UserMixin
-from hashlib import md5
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
@@ -56,7 +57,7 @@ class Role(db.Model):
             if role in None:
                 role = Role(name = r)
 
-            role.reset_permission()
+            role.reset_permissions()
             for perm in roles[r]:
                 role.add_permission(perm)
 
@@ -75,7 +76,7 @@ class Role(db.Model):
             self.permissions -= perm
 
 
-    def reset_permission(self):
+    def reset_permissions(self):
         self.permissions = 0
 
 
@@ -115,6 +116,7 @@ class User(UserMixin, db.Model):
     locationAddress = db.Column(db.String(255), default = "Nairobi West")
 
     about_me = db.Column(db.String(140))
+    avatar_hash = db.Column(db.String(32))
     pointsAcquired = db.Column(db.Integer, default = 0)
     last_seen = db.Column(db.DateTime, default = datetime.utcnow)
 
@@ -134,6 +136,19 @@ class User(UserMixin, db.Model):
         if self.pointsAcquired is None:
             self.pointsAcquired = 5
 
+        # Assign default role to user
+        if self.role is None:
+            if self.emailAddress == current_app.config['ADMINISTRATOR_EMAIL']:
+                self.role = Role.query.filter_by(name = 'Administrator').first()
+
+            if self.role is None:
+                self.role = Role.query.filter_by(defualt = True).first()
+
+        # Generate avatar hash
+        if self.emailAddress is not None and self.avatar_hash is None:
+            self.avatar_hash = self.gravatar_hash()
+
+
     def __repr__(self):
         return f"<User(userId={self.userId}, userName='{self.userName}', emailAddress='{self.emailAddress}')>"
 
@@ -142,28 +157,108 @@ class User(UserMixin, db.Model):
         return self.userId
 
     
-    def avatar(self, size):
-        digest = md5(self.emailAddress.lower().encode('utf-8')).hexdigest()
-        return "https://www.gravatar.com/avatar/{}?d=identicon&s={}".format(
-                digest, size)
+    def gravatar_hash(self):
+        return hashlib.md5(self.emailAddress.lower().encode('utf-8')).hexdigest()
+
+
+    def gravatar(self, size = 100, default = 'identicon', rating = 'g'):
+        url = 'https://secure.gravatar.com/avatar'
+        hash = self.avatar_hash or self.gravatar_hash()
+        return "{url}/{hash}?s={size}&d={default}&r={rating}".format(url = url,
+                hash = hash, size = size, default = default, rating = rating)
 
 
     @property
     def password(self):
         raise AttributeError("Password is not a readable attribute")
 
+
     @password.setter
     def password(self, password):
         self.passwordHash = generate_password_hash(password)
+
+
+    def confirm():
+        serializer = Serializer(flask.current_app.config['SECRET_KEY'])
+        try:
+            data = serializer.loads(token.encode('utf-8'))
+        except:
+            return False
+
+        if data.get('confirm' != self.userId):
+            return False
+
+        self.confirmed = True
+        db.session.add(self)
+        return True
 
 
     def verify_password(self, password):
         return check_password_hash(self.passwordHash, password)
 
 
+    def get_reset_credential_token(self, expiration = 3600):
+        serializer = Serializer(flask.current_app.config['SECRET_KEY'], 
+                expiration)
+        return s.dumps({'reset': self.userId}).decode('utf-8')
+
+
+    def change_email(self, token):
+        serializer = Serializer(flask.current_app.config['SECRET_KEY'])
+        try:
+            data = serializer.loads(token.encode('utf-8'))
+        except:
+            return False
+
+        new_email = data.get('new_email')
+        if new_email is None:
+            return False
+
+        if self.query.filter_by(emailAddress = new_email).first() is not None:
+            return False
+
+        self.emailAddress = new_email
+        self.avatar_hash = self.gravatar_hash()
+        db.session.add(self)
+        return True
+
+
+    @staticmethod
+    def reset_password(token, new_password):
+        serializer = Serializer(flask.current_app.config['SECRET_KEY'])
+        try:
+            data = serializer.loads(token.encode('utf-8'))
+        except:
+            return False
+
+        user = User.query.get(data.get('reset'))
+        if user is None:
+            return False
+
+        user.password = new_password
+        db.session.add(user)
+        return True
+
+
+    @staticmethod
+    def verify_reset_credential_token(token):
+        try:
+            id = jwt.decode(token, flask.current_app.config['SECRET_KEY'], 
+                    algorithms = ['HS256'])['reset_credential']
+        except:
+            return
+        
+        return User.query.get(id)
+    
+
     def generate_confirmation_token(self, expiration = 3600):
         s = serializer(flask.current_app.config['SECRET_KEY'], expiration)
         return s.dumps({'confirm' : self.userId}).decode('utf-8')
+
+
+    def ping(self):
+        self.last_seen = datetime.utcnow()
+        db.session.add(self)
 
 
     def confirm(self, token):

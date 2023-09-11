@@ -1,0 +1,25 @@
+Dear {{ user.username }},
+
+Welcome to the Ripoti Taka Program! We are thrilled to have you as a member of 
+our community dedicated to making a positive impact on the environment.
+
+As you have successfully registered, we kindly request you to take a moment to 
+confirm your email address by clicking on the following link:
+
+{{ url_for('authentication.confirm', token = token, _external = True) }}
+
+Confirming your email address is an essential step to activate your account and 
+stay updated with the latest news and activities related to our program.
+
+For security reasons, please do not reply to this email address. If you have any 
+questions or need assistance, please visit our website or contact our support 
+team at ripoti.wapendataka@gmail.com.
+
+Thank you for joining us in our mission to create a cleaner and greener world. 
+Together, we can make a significant difference.
+
+Warm regards,
+
+The Ripoti Taka Communications Office
+Ripoti Taka Program
+Support Email: ripoti.wapendataka@gmail.com
