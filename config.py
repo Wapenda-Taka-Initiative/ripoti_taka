@@ -5,13 +5,6 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or \
             'Fighting poverty, ignorance and diseases'
 
-    MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.googlemail.com')
-    MAIL_PORT = int(os.environ.get('MAIL_PORT', '587'))
-    MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', 'true').lower() in \
-            ['true', 'on', '1']
-    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
-    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-
     SSL_REDIRECT = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_RECORD_QUERIES = True
@@ -19,6 +12,9 @@ class Config:
 
     ORGANIZATION_NAME = os.environ.get('ORGANISATION_NAME') or\
             'Ripoti Taka Program'
+
+    # Location for Gmail API credentials
+    CREDENTIALS_PATH = os.path.join(basedir + '/secrets/')
 
     REPORT_IMAGES_UPLOAD_PATH = os.path.join(basedir +
             '/app/static/images/reports/')
@@ -30,6 +26,34 @@ class Config:
             'ripoti.wapendataka@gmail.com'
     ADMINISTRATOR_EMAIL = os.environ.get('ADMINISTRATOR_EMAIL') or\
             'ripoti.wapendataka@gmail.com'
+
+
+    OAUTH2_PROVIDERS = {
+            'google' : {
+                'client_id' : os.environ.get('GOOGLE_CLIENT_ID'),
+                'client_secret' : os.environ.get('GOOGLE_CLIENT_SECRET'),
+                'authorize_url' : 'https://accounts.google.com/o/oauth2/auth',
+                'token_url' : 'https://accounts.google.com/0/oauth2/token',
+                'userinfo' : {
+                    'url' : 'https://www.googleapis.com/oauth2/v3/userinfo',
+                    'email' : lambda json: json['email'],
+                    },
+                'scopes' : ['https://www.googleapis.com/auth/userinfo.email'],
+                },
+            'github' : {
+                'client_id' : os.environ.get('GITHUB_CLIENT_ID'),
+                'client_secret' : os.environ.get('GITHUB_CLIENT_SECRET'),
+                'authorize_url' : 'https://github.com/login/oauth/authorize',
+                'token_url' : 'https://github.com/login/oauth/access_token',
+                'userinfo' : {
+                    'url' : 'https://api.github.com/user/emails',
+                    'email' : lambda json: json[0]['email'],
+                    },
+                'scopes' : ['https://www.googleapis.com/auth/userinfo.email'],
+                },
+            'scopes' : ['user : email']
+            }
+
 
     @staticmethod
     def init_app(app):
@@ -45,6 +69,7 @@ class DevelopmentConfig(Config):
 class TestingConfig(Config):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL') or 'sqlite://'
+    WTF_CRF_ENABLED = False
 
 
 class ProductionConfig(Config):

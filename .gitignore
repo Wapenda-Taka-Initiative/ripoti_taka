@@ -1,9 +1,25 @@
-__pycache__/
-**/__pycache__/
+# Ignore swap files
 **/.swp
 **/.swo
+
+# Ignore migrations
 **/migrations/
+
+# Ignore user provided images
 app/static/images/reports/
 app/static/assets/img/
-data-dev-sqlite
 app/templates/profiles/temp/
+
+# Ignore Python cache files
+__pycache__/
+**/__pycache__/
+
+# Ignore environment configuration
+.env
+
+# Ignore local development data
+data-dev-sqlite
+
+# Ignore sensitive credentials and secrets
+secret/
+secrets/

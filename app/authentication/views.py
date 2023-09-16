@@ -4,6 +4,7 @@ from . import authentication
 from .forms import LoginForm
 from .. import db
 from ..models import User
+from ..email import send_email
 
 
 @authentication.before_app_request
@@ -23,9 +24,13 @@ def logout():
 
 
 @authentication.route('/login', methods = ['GET', 'POST'])
-def login():
+@authentication.route('/login/<user>', defaults = {'user' : None}, 
+        methods = ['GET', 'POST'])
+def login(user):
     form = LoginForm()
-    if form.validate_on_submit():
+    
+    # Check whether the user logged in by submitting to a form
+    if flask.request.method == 'POST' and form.validate_on_submit():
         user = User.query.filter_by(userName = form.user_name.data).first()
 
         if user is not None and user.verify_password(form.password.data):
@@ -37,6 +42,12 @@ def login():
             return flask.redirect(next)
 
         flask.flash("Invalid username or password")
+
+    elif user:
+        # Support users logging in using OAuth2 flow
+        login_user(user, True)
+        return flask.redirect(flask.url_for('profiles.dashboard'))
+
     return flask.render_template('authentication/login.html', form = form)
 
 
@@ -76,7 +87,8 @@ def confirm(token):
 @login_required
 def resend_confirmation_link():
     token = current_user.generate_confirmation_token()
-    send_email(current_user.email, "Welcome to the Ripoti Taka Program!", 
-            "authentication/email/confirm", user = current_user, token = token)
+    send_email(to = [current_user.emailAddress], 
+            subject = "Welcome to the Ripoti Taka Program!", 
+            template = "confirm_account", user = current_user, token = token)
     flask.flash("A new confirmation email has been sent to you by email")
     return flask.redirect(flask.url_for('main.index'))

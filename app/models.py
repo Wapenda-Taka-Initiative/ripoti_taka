@@ -1,7 +1,8 @@
+import flask
 import hashlib
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import TimedJSONWebSignatureSerializer
+from itsdangerous.url_safe import URLSafeTimedSerializer as Serializer
 from flask_login import AnonymousUserMixin, UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
@@ -138,11 +139,11 @@ class User(UserMixin, db.Model):
 
         # Assign default role to user
         if self.role is None:
-            if self.emailAddress == current_app.config['ADMINISTRATOR_EMAIL']:
+            if self.emailAddress ==flask.current_app.config['ADMINISTRATOR_EMAIL']:
                 self.role = Role.query.filter_by(name = 'Administrator').first()
 
             if self.role is None:
-                self.role = Role.query.filter_by(defualt = True).first()
+                self.role = Role.query.filter_by(default = True).first()
 
         # Generate avatar hash
         if self.emailAddress is not None and self.avatar_hash is None:
@@ -251,9 +252,9 @@ class User(UserMixin, db.Model):
         return User.query.get(id)
     
 
-    def generate_confirmation_token(self, expiration = 3600):
-        s = serializer(flask.current_app.config['SECRET_KEY'], expiration)
-        return s.dumps({'confirm' : self.userId}).decode('utf-8')
+    def generate_confirmation_token(self):
+        serializer = Serializer(flask.current_app.config['SECRET_KEY'], 'confirm')
+        return serializer.dumps(self.userId)
 
 
     def ping(self):
@@ -261,10 +262,10 @@ class User(UserMixin, db.Model):
         db.session.add(self)
 
 
-    def confirm(self, token):
-        s = serializer(flask.current_app.config['SECRET_KEY'])
+    def confirm(self, token, max_age = 3600):
+        serializer = Serializer(flask.current_app.config['SECRET_KEY'], 'confirm')
         try:
-            data = s.loads(token.encode('utf-8'))
+            data = serializer.loads(token, max_age = max_age)
         except:
             return False
 

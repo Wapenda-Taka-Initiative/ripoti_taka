@@ -1,5 +1,8 @@
-import flask
 import os
+import flask
+import secrets
+import requests
+from urllib.parse import urlencode
 from flask_login import current_user, login_required
 from . import registration
 from .forms import (RegistrationForm, EditUserProfileForm, ResetPasswordForm, 
@@ -107,7 +110,7 @@ def reset_password_request():
     return flask.redirect(flask.url_for('authentication.logout'))
 
 
-@registration.route('/reset_password/<token>', method = ['GET', 'POST'])
+@registration.route('/reset_password/<token>', methods = ['GET', 'POST'])
 def reset_password(token):
     user = User.verify_reset_credential_token(token)
     if not user:
@@ -132,7 +135,7 @@ def reset_username_request():
     return flask.redirect(flask.url_for('authentication.logout'))
 
 
-@registration.route('/reset_username/<token>', method = ['GET', 'POST'])
+@registration.route('/reset_username/<token>', methods = ['GET', 'POST'])
 def reset_username(token):
     user = User.verify_reset_credential_token(token)
     if not user:
@@ -157,7 +160,7 @@ def reset_email_request():
     return flask.redirect(flask.url_for('authentication.logout'))
 
 
-@registration.route('/reset_email/<token>', method = ['GET', 'POST'])
+@registration.route('/reset_email/<token>', methods = ['GET', 'POST'])
 def reset_email(token):
     user = User.verify_reset_credential_token(token)
     if not user:
@@ -171,3 +174,103 @@ def reset_email(token):
         return flask.redirect(flask.url_for('authentication.login'))
 
     return flask.render_template('registration/reset_email.html', form = form)
+
+
+@registration.route('/authorize/<provider>')
+def oauth2_authorize(provider):
+    # Functionality reserved for anonymous users only
+    if not current_user.is_anonymous:
+        return flask.redirect(flask.url_for('profiles.dashboard'))
+
+    provider_data = flask.current_app.config['OAUTH2_PROVIDERS'].get(provider)
+    # Ensure requested provider is in the configuration
+    if provider_data is None:
+        abort(404)
+
+    # Generate a random string for the state parameter
+    flask.session['oauth2_state'] = secrets.token_urlsafe(16)
+
+    # Create a query string with all the OAuth2 parameters
+    query_string = urlencode({
+        'client_id': provider_data['client_id'],
+        'redirect_uri': url_for('oauth2_callback', provider = provider, 
+            _external = True),
+        'response_type': 'code',
+        'scope': ' '.join(provider_data['scopes']),
+        'state': flask.session['oauth2_state'],
+        })
+    # Redirect the user to the OAuth2 provider authorization URL
+    return flask.redirect(provider_data['authorize_url'] + '?' + query_string)
+
+
+@registration.route('/callback/<provider>')
+def oauth2_callback(provider):
+    # Functionality reserved for anonymous users only
+    if not current_user.is_anonymous:
+        return flask.redirect(flask.url_for('profiles.dashboard'))
+
+    provider_data = flask.current_app.config['OAUTH2_PROVIDERS'].get(provider)
+    if provider_data is None:
+        flask.abort(404)
+
+    # If there was an authentication error, flash the error message and exit
+    if 'error' in flask.request.args:
+        for key, value in flask.request.args.items():
+            if key.startswith('error'):
+                flask.flash(f"{key} : {value}")
+        return flask.redirect(flask.url_for('main.index'))
+
+    # Ensure the state parameter matches the one created in the authorization
+    # request to prevent CSRF
+    if flask.request.args['state'] != flask.session.get('oauth2_state'):
+        flask.abort(401)
+
+    # Ensure the authorization code is present
+    if 'code' not in flask.request.args:
+        flask.abort(401)
+
+    # Exchange the authorization code for an access token
+    response = requests.post(provider_data['token_url'], 
+            data = {
+                'client_id' : provider_data['client_id'],
+                'client_secret' : provider_data['client_secret'],
+                'code' : flask.request.args['code'],
+                'grant_type' : 'authorization_code',
+                'redirect_uri' : flask.url_for('oauth2_callback', 
+                    provider = provider, _external = True),
+                }, 
+            headers = {"Accept" : "application/json"})
+
+    # Ensure request was a success
+    if response.status != 200:
+        flask.abort(401)
+
+    # Ensure access token was provided
+    oauth2_token = response.json().get('access_token')
+    if not oauth2_token:
+        flask.abort(401)
+
+    # Use provided access token to get user's email address
+    response = request.get(provider_data['userinfo']['url'], 
+            headers = {
+                "Authorization" : "Bearer" + oauth2_token,
+                "Accept" : "application/json"
+                }
+            )
+
+    # Ensure request was a success
+    if response.status_code != 200:
+        abort(401)
+
+    # Retrieve provided email address
+    email = provider_data['userinfo']['email'](response.json())
+
+    # Find or create user in the database
+    user = db.session.scalar(db.select(User).where(User.email == email))
+    if user is None:
+        user = User(email = email, username = email.split("@")[0])
+        db.session.add(user)
+        db.session.commit()
+
+    # login the user
+    return flask.redirect(flask.url_for('authentication.login', user = user))

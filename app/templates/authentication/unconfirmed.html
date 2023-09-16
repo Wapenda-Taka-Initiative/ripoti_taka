@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}
+Confirm Your Account
+{% endblock title %}
+
+{% block page_content %}
+<div class="flex flex-col items-center justify-center h-screen bg-gray-100">
+	<div class="bg-white p-6 rounded-lg shadow-lg max-w-md text-center space-y-4">
+		<h1 class="text-3xl font-semibold text-indigo-600">
+			Hello, {{ current_user.userName }}!
+		</h1>
+		<h3 class="text-lg text-gray-600">You have not confirmed your account yet.</h3>
+		<p class="text-gray-700">
+		Before you can access this site, you need to confirm your account.
+		Check your inbox; you should have received an email with a confirmation link.
+		</p>
+		<p class="text-gray-700">
+		If you didn't receive the email, please check your spam folder.
+		</p>
+		<p class="text-gray-700">
+		Need another confirmation email?
+		<a href="{{ url_for('authentication.resend_confirmation_link') }}" class="text-blue-500 hover:underline">Click here</a>
+		</p>
+		<div class="border-t border-gray-300 pt-4">
+			<p class="text-sm text-gray-500">
+			Have questions or need assistance?
+			<a href="{{ url_for('main.contact_us') }}" class="text-blue-500 hover:underline">Contact our support team</a>.
+			</p>
+		</div>
+	</div>
+</div>
+{% endblock page_content %}
