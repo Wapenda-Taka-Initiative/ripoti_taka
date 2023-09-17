@@ -16,7 +16,7 @@ User Profile
 		{% if user.imageUrl %}
 		<img src="{{ url_for('static', filename = 'images/profiles/' + user.imageUrl) }}" alt="Profile Picture" class="w-32 h-32 mx-auto rounded-full mb-4">
 		{% else %}
-		<img src="{{ user.avatar(150) }}" alt="Profile Picture" class="w-32 h-32 mx-auto rounded-full mb-4">
+		<img src="{{ user.gravatar(size = 300) }}" alt="Profile Picture" class="w-32 h-32 mx-auto rounded-full mb-4">
 		{% endif %}
 
 		<form action="{{ url_for('registration.edit_profile_image', user_id = user.userId) }}" method="POST" enctype="multipart/form-data" class="mb-4">

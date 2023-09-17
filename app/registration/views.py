@@ -3,7 +3,7 @@ import flask
 import secrets
 import requests
 from urllib.parse import urlencode
-from flask_login import current_user, login_required
+from flask_login import current_user, login_required, login_user
 from . import registration
 from .forms import (RegistrationForm, EditUserProfileForm, ResetPasswordForm, 
         ResetUsernameForm, ResetEmailForm)
@@ -185,7 +185,7 @@ def oauth2_authorize(provider):
     provider_data = flask.current_app.config['OAUTH2_PROVIDERS'].get(provider)
     # Ensure requested provider is in the configuration
     if provider_data is None:
-        abort(404)
+        flask.abort(404)
 
     # Generate a random string for the state parameter
     flask.session['oauth2_state'] = secrets.token_urlsafe(16)
@@ -193,8 +193,8 @@ def oauth2_authorize(provider):
     # Create a query string with all the OAuth2 parameters
     query_string = urlencode({
         'client_id': provider_data['client_id'],
-        'redirect_uri': url_for('oauth2_callback', provider = provider, 
-            _external = True),
+        'redirect_uri': flask.url_for('registration.oauth2_callback', 
+            provider = provider, _external = True),
         'response_type': 'code',
         'scope': ' '.join(provider_data['scopes']),
         'state': flask.session['oauth2_state'],
@@ -236,13 +236,14 @@ def oauth2_callback(provider):
                 'client_secret' : provider_data['client_secret'],
                 'code' : flask.request.args['code'],
                 'grant_type' : 'authorization_code',
-                'redirect_uri' : flask.url_for('oauth2_callback', 
+                'redirect_uri' : flask.url_for('registration.oauth2_callback', 
                     provider = provider, _external = True),
                 }, 
             headers = {"Accept" : "application/json"})
 
     # Ensure request was a success
-    if response.status != 200:
+    if response.status_code != 200:
+        return str(response.text)
         flask.abort(401)
 
     # Ensure access token was provided
@@ -251,9 +252,9 @@ def oauth2_callback(provider):
         flask.abort(401)
 
     # Use provided access token to get user's email address
-    response = request.get(provider_data['userinfo']['url'], 
+    response = requests.get(provider_data['userinfo']['url'], 
             headers = {
-                "Authorization" : "Bearer" + oauth2_token,
+                "Authorization" : "Bearer " + oauth2_token,
                 "Accept" : "application/json"
                 }
             )
@@ -265,12 +266,14 @@ def oauth2_callback(provider):
     # Retrieve provided email address
     email = provider_data['userinfo']['email'](response.json())
 
-    # Find or create user in the database
-    user = db.session.scalar(db.select(User).where(User.email == email))
+    # Find or create user in the database (confirmed by default)
+    user = db.session.scalar(db.select(User).where(User.emailAddress == email))
     if user is None:
-        user = User(email = email, username = email.split("@")[0])
+        user = User(emailAddress = email, userName = email.split("@")[0], 
+                confirmed = True, password = "password")
         db.session.add(user)
         db.session.commit()
 
     # login the user
-    return flask.redirect(flask.url_for('authentication.login', user = user))
+    login_user(user)
+    return flask.redirect(flask.url_for('profiles.dashboard'))

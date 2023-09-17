@@ -21,7 +21,7 @@ Explore Community
 				{% if contributor.imageUrl %}
 				<img src="{{ url_for('static', filename = 'images/profiles/' + contributor.imageUrl) }}" alt="Contributor Avatar" class="w-full h-44 object-cover">
 				{% else %}
-				<img src="{{ contributor.avatar(300)}}" alt="Contributor Avatar" class="w-full h-44 object-cover">
+				<img src="{{ contributor.gravatar(size = 300)}}" alt="Contributor Avatar" class="w-full h-44 object-cover">
 				{% endif %}
 				<span class="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-semibold">VIP</span>
 			</div>
@@ -51,7 +51,7 @@ Explore Community
 				{% if member.imageUrl %}
 				<img src="{{ url_for('static', filename = 'images/profiles/' + member.imageUrl) }}" alt="Contributor Avatar" class="w-full h-44 object-cover">
 				{% else %}
-				<img src="{{ member.avatar(300)}}" alt="Contributor Avatar" class="w-full h-44 object-cover">
+				<img src="{{ member.gravatar(size = 300)}}" alt="Contributor Avatar" class="w-full h-44 object-cover">
 				{% endif %}
 				<span class="absolute top-3 right-3 bg-green-500 text-white py-1 px-2 rounded-full text-xs font-semibold">New</span>
 			</div>
@@ -83,7 +83,7 @@ Explore Community
 				{% if member.imageUrl %}
 				<img src="{{ url_for('static', filename = 'images/profiles/' + member.imageUrl) }}" alt="Contributor Avatar" class="w-full h-44 object-cover">
 				{% else %}
-				<img src="{{ member.avatar(300)}}" alt="Contributor Avatar" class="w-full h-44 object-cover">
+				<img src="{{ member.gravatar(size = 300)}}" alt="Contributor Avatar" class="w-full h-44 object-cover">
 				{% endif %}
 				<span class="absolute top-3 right-3 bg-indigo-500 text-white py-1 px-2 rounded-full text-xs font-semibold">Member</span>
 			</div>

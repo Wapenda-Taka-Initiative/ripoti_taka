@@ -320,7 +320,7 @@
 										{% if current_user.imageUrl %}
 										<img src="{{ url_for('static', filename = 'images/profiles/' + current_user.imageUrl) }}" class="w-8 h-8 rounded-full" alt="Profile Picture"  aria-hidden="true">
 										{% else %}
-										<img class="object-cover w-8 h-8 rounded-full" src="{{ current_user.avatar(200) }}" alt="Profile Picture" aria-hidden="true" />
+										<img class="object-cover w-8 h-8 rounded-full" src="{{ current_user.gravatar(size = 256) }}" alt="Profile Picture" aria-hidden="true" />
 										{% endif %}
 										</button>
 											<template x-if="isProfileMenuOpen">
