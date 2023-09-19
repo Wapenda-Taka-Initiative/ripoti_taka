@@ -70,7 +70,7 @@
 - Document the system's architecture, database schema, and API (if applicable).
 
 # Module Flowchart
-
+```txt
 1. User logs in
     |
     V
@@ -90,7 +90,7 @@
     |
     V
 4. User logs out
-
+```
 # Pseudocode
 
 ```python
