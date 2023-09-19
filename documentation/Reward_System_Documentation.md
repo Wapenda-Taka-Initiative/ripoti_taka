@@ -119,3 +119,86 @@ if user_authenticated:
 # User logs out
 logout_user()
 ```
+
+# Required Queries
+## User-Related Queries
+
+1. **Create User:**
+   - SQL query to insert a new user record into the "User" table when a user registers.
+
+2. **User Authentication:**
+   - SQL query to verify user credentials (username/password) during login.
+
+3. **Get User Information:**
+   - Retrieve user details (e.g., name, points acquired, rewards claimed) based on user ID.
+
+4. **Get User Role:**
+   - Retrieve the role assigned to a user based on their user ID.
+
+5. **Update User Profile:**
+   - SQL query to update user information (e.g., profile picture, contact information).
+
+6. **Assign Role to User:**
+   - SQL query to assign a specific role to a user, typically performed by administrators.
+
+## Reward-Related Queries
+
+7. **Create Reward Category:**
+   - Insert a new reward category into the "Reward" table.
+
+8. **Create Reward:**
+   - SQL query to add a new reward to the "Reward" table.
+
+9. **Edit Reward:**
+   - Update the details of an existing reward in the "Reward" table.
+
+10. **Delete Reward:**
+    - Remove a reward from the "Reward" table.
+
+11. **Get All Rewards:**
+    - Retrieve a list of all available rewards, including their details and point requirements.
+
+12. **Get Reward by ID:**
+    - Fetch a specific reward's details based on its ID.
+
+## User Reward-Related Queries
+
+13. **Claim Reward:**
+    - Insert a new record into the "User_Reward" table when a user claims a reward.
+
+14. **Unclaim Reward:**
+    - Update the "User_Reward" table to unclaim a reward (or delete the record after 30 days).
+
+15. **Get User's Claimed Rewards:**
+    - Retrieve a list of rewards claimed by a specific user.
+
+16. **Get User's Awarded Rewards:**
+    - Fetch a list of rewards awarded to a specific user.
+
+17. **Get User's Eligible Rewards:**
+    - Determine which rewards are currently eligible for a specific user based on their points.
+
+18. **Get All User Rewards:**
+    - Retrieve a list of all user rewards, including claimed and awarded rewards for all users (for administrators).
+
+19. **Award Reward:**
+    - Update the "User_Reward" table to mark a reward as awarded (typically performed by administrators).
+
+## Administrator-Related Queries
+
+20. **Assign Reward Manager:**
+    - Update user roles to assign a user as a reward manager.
+
+21. **Unassign Reward Manager:**
+    - Revoke the reward manager role from a user.
+
+## General Queries
+
+22. **Calculate User's Points:**
+    - Calculate the total points acquired by a user based on their activities.
+
+23. **Delete Expired Unclaimed Rewards:**
+    - Periodically delete records of unclaimed rewards older than 30 days.
+
+24. **Log User Actions:**
+    - Insert log entries for various user actions and system events for auditing and debugging.
