@@ -43,11 +43,15 @@ Latest Reports
 					<p class="text-sm text-gray-600">Reported by {{ report.user.userName }}</p>
 				</div>
 			</div>
-			<img src="{{ url_for('static', filename = 'images/reports/' ~ report.reportId ~ '/' ~ report.reportId ~ '_1.jpg') }}" alt="Report Image" class="w-full">
+			<img src="{{ url_for('static', filename = 'images/reports/' ~ report.reportId ~ '/' ~ report.reportId ~ '_1.jpg') }}" onerror="handleError(this);" alt="Report Image" class="w-full">
 			</center>
 		</div>
 		{% endfor %}
-
 	</div>
 </div>
+<script>
+	function handleError(image) {
+	    image.src = "{{ url_for('static', filename = 'img/images_not_submitted.png') }}";
+	}
+</script>
 {% endblock content %}

@@ -14,7 +14,7 @@ class Config:
             'Ripoti Taka Program'
 
     # Location for Gmail API credentials
-    CREDENTIALS_PATH = os.path.join(basedir + '/secrets/')
+    SECRETS_PATH = os.path.join(basedir + '/secret/')
 
     REPORT_IMAGES_UPLOAD_PATH = os.path.join(basedir +
             '/app/static/images/reports/')
@@ -54,6 +54,13 @@ class Config:
                 },
             }
 
+    GMAIL_API_CONFIG = {
+            'client_id' : os.environ.get('GOOGLE_CLIENT_ID'),
+            'client_secret' : os.environ.get('GOOGLE_CLIENT_SECRET'),
+            'authorize_url' : 'https://accounts.google.com/o/oauth2/auth',
+            'token_url' : 'https://accounts.google.com/o/oauth2/token',
+            'scopes' : ['https://www.googleapis.com/auth/gmail.send'],
+            }
 
     @staticmethod
     def init_app(app):

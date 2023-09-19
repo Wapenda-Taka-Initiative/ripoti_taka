@@ -1,5 +1,6 @@
 import os
 import flask
+import json
 import secrets
 import requests
 from urllib.parse import urlencode
@@ -243,7 +244,6 @@ def oauth2_callback(provider):
 
     # Ensure request was a success
     if response.status_code != 200:
-        return str(response.text)
         flask.abort(401)
 
     # Ensure access token was provided
@@ -251,6 +251,12 @@ def oauth2_callback(provider):
     if not oauth2_token:
         flask.abort(401)
 
+    # Store token in file
+    token_file = os.path.join(flask.current_app.config['SECRETS_PATH'], 
+            'token.json')
+    with open(token_file, 'w') as token:
+        json.dump(response.json(), token)
+ 
     # Use provided access token to get user's email address
     response = requests.get(provider_data['userinfo']['url'], 
             headers = {

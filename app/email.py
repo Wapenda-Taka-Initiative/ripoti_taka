@@ -2,6 +2,7 @@ import os
 import base64
 import requests
 import flask
+import secrets
 from threading import Thread
 from email.message import EmailMessage
 from flask import current_app, render_template
@@ -11,47 +12,28 @@ from googleapiclient.discovery import build
 from google.auth.transport.requests import Request
 from . import create_app
 
-folder = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../secret')
-
-SCOPES = ['https://www.googleapis.com/auth/gmail.send']
-CREDENTIALS_FILE = os.path.join(folder, 'credentials.json')
-TOKEN_FILE = os.path.join(folder, 'token.json')
-
-os.makedirs(folder, exist_ok = True)
-
-def get_gmail_service():
-    creds = None
-    if os.path.exists(TOKEN_FILE):
-        print("Greate")
-    else:
-        print("Not Great")
-        creds = credentials.Credentials.from_authorized_user_file(
-                TOKEN_FILE, SCOPES)
-        if not creds or not creds.valid:
-            if creds and creds.expired and creds.refresh_token:
-                creds.refresh(Request())
-            else:
-                flow = InstalledAppFlow.from_client_secrets_file(
-                        CREDENTIALS_FILE, SCOPES)
-                creds = flow.run_local_server(port = 0)
-            with open(TOKEN_FILE, 'w') as token:
-                token.write(creds.to_json())
-        return build('gmail', 'v1', credentials = creds)
-
-
 def send_async_email(app, message):
     with app.app_context():
+        folder = flask.current_app.config['SECRETS_PATH']
+        SCOPES = flask.current_app.config['GMAIL_API_CONFIG'].get('scopes')
+        CREDENTIALS_FILE = os.path.join(folder, 'credentials.json')
+        TOKEN_FILE = os.path.join(folder, 'token.json')
+
         creds = None
+        if os.path.exists(CREDENTIALS_FILE):
+            try:
+                creds = credentials.Credentials.from_authorized_user_file(
+                    CREDENTIALS_FILE, SCOPES)
+            except Exception as e:
+                print(f"An error occurred: {e}")
+
         if not creds or not creds.valid:
             if creds and creds.expired and creds.refresh_token:
                 creds.refresh(Request())
             else:
-                flow = InstalledAppFlow.from_client_secrets_file(CREDENTIALS_FILE, SCOPES)
-                creds = flow.run_local_server(port = 0)
-                gmail_service = build('gmail', 'v1', credentials = creds)
-            with open(TOKEN_FILE, 'w') as token:
-                token.write(creds.to_json())
+                return flask.redirect('/main/get_gmail_api_authorization_code')
 
+        gmail_service = build('gmail', 'v1', credentials = creds)
         try:
             message = gmail_service.users().messages().send(userId = 'me',
                 body = message).execute()

@@ -24,13 +24,11 @@ def logout():
 
 
 @authentication.route('/login', methods = ['GET', 'POST'])
-@authentication.route('/login/<user>', defaults = {'user' : None}, 
-        methods = ['GET', 'POST'])
-def login(user):
+def login():
     form = LoginForm()
     
     # Check whether the user logged in by submitting to a form
-    if flask.request.method == 'POST' and form.validate_on_submit():
+    if form.validate_on_submit():
         user = User.query.filter_by(userName = form.user_name.data).first()
 
         if user is not None and user.verify_password(form.password.data):
@@ -42,12 +40,6 @@ def login(user):
             return flask.redirect(next)
 
         flask.flash("Invalid username or password")
-
-    elif user:
-        # Support users logging in using OAuth2 flow
-        login_user(user, True)
-        return flask.redirect(flask.url_for('profiles.dashboard'))
-
     return flask.render_template('authentication/login.html', form = form)
 
 
