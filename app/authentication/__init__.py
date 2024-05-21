@@ -12,8 +12,7 @@ def global_variables():
     Provides global variables that can be accessed directly within templates
     belonging to the 'authentication' blueprint.
 
-    Returns:
-        dict: A dictionary containing global variables to be injected into
-        templates.
+    :return: Dict - A dictionary containing global variables to be injected
+        into templates.
     """
     return dict(app_name=current_app.config["ORGANIZATION_NAME"])
