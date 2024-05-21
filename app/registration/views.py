@@ -65,8 +65,12 @@ def register_user():
         db.session.add(user)
         db.session.commit()
 
+        # Send confirmation email
+        user.sendConfirmationEmail()
+
+        # Render success message
         flask.flash("A confirmation email has been sent to you.")
-        return flask.redirect(flask.url_for("main.index"))
+        return flask.redirect(flask.url_for("authentication.login"))
 
     return flask.render_template("registration/register_user.html", form=form)
 

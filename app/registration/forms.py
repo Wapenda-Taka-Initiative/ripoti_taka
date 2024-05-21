@@ -4,13 +4,20 @@ from wtforms import SelectField
 from wtforms import PasswordField
 from wtforms import TextAreaField
 from wtforms import ValidationError
-from wtforms.validators import InputRequired
+
 from wtforms.validators import Email
 from wtforms.validators import Length
+from wtforms.validators import Regexp
 from wtforms.validators import EqualTo
 from wtforms.validators import DataRequired
+from wtforms.validators import InputRequired
 
 from app.models import User
+
+
+strong_password_regex = (
+    r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,32}$"
+)
 
 
 class RegistrationForm(FlaskForm):
@@ -21,7 +28,19 @@ class RegistrationForm(FlaskForm):
         "Email Address", validators=[InputRequired(), Email(), Length(10, 128)]
     )
     password = PasswordField(
-        "Password", validators=[InputRequired(), Length(8, 32)]
+        "Password",
+        validators=[
+            InputRequired(),
+            Length(8, 32),
+            Regexp(
+                strong_password_regex,
+                message=(
+                    "Password must be 8-32 characters long, include at "
+                    + "least one lowercase letter, one uppercase letter, "
+                    + "one digit, and one special character."
+                ),
+            ),
+        ],
     )
     confirm_password = PasswordField(
         "Confirm Password",
