@@ -7,9 +7,9 @@ from flask_login import login_required
 from . import authentication
 from .. import db
 from .forms import LoginForm
+from .forms import ResetPasswordForm
 
 from app.models import User
-from utilities.email import send_email
 
 
 @authentication.before_app_request
@@ -73,7 +73,7 @@ def confirm(token):
     if current_user.confirmed:
         return flask.redirect(flask.url_for("main.index"))
 
-    if current_user.confirm():
+    if current_user.confirm(token):
         db.session.commit()
         flask.flash("You have confirmed your account successfully. Welcome!!!")
 
@@ -86,13 +86,30 @@ def confirm(token):
 @authentication.route("/confirm")
 @login_required
 def resend_confirmation_link():
-    token = current_user.generate_confirmation_token()
-    send_email(
-        to=[current_user.emailAddress],
-        subject="Welcome to the Ripoti Taka Program!",
-        template="confirm_account",
-        user=current_user,
-        token=token,
-    )
+    current_user.sendConfirmationEmail()
     flask.flash("A new confirmation email has been sent to you by email")
     return flask.redirect(flask.url_for("main.index"))
+
+
+@authentication.route("/user/password-reset/<token>", methods=["GET", "POST"])
+def user_password_reset(token):
+    # Functionality limited to stranded users
+    if not current_user.is_anonymous:
+        return flask.redirect(flask.url_for("users.dashboard"))
+
+    # Handle form rendering and submission
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        # Reset user's password
+        successful = User.resetPassword(token, form.password.data)
+
+        # Handle successful reset
+        if successful:
+            flask.flash("Password updated successfully")
+            return flask.redirect(flask.url_for("authentication.user_login"))
+
+        # Flash failure message
+        flask.flash("The link you used is either expired or corrupted")
+    return flask.render_template(
+        "authentication/password_reset.html", form=form
+    )
