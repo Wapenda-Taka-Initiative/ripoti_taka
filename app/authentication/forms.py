@@ -34,7 +34,8 @@ class ResetPasswordForm(FlaskForm):
                 strong_password_regex,
                 message=(
                     "Password must be 8-32 characters long, include at "
-                    + "least one lowercase letter, one uppercase letter, one digit, and one special character."
+                    + "least one lowercase letter, one uppercase letter, "
+                    + "one digit, and one special character."
                 ),
             ),
         ],
@@ -46,3 +47,9 @@ class ResetPasswordForm(FlaskForm):
 
 class UnlockScreenForm(FlaskForm):
     password = PasswordField("Enter Password", validators=[DataRequired()])
+
+
+class ForgotPasswordForm(FlaskForm):
+    email_address = StringField(
+        "Email address", validators=[InputRequired(), Email(), Length(10, 128)]
+    )

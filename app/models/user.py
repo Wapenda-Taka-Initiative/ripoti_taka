@@ -192,7 +192,7 @@ class User(UserMixin, db.Model):
         """
         token = self.generateConfirmationToken()
         reset_link = url_for(
-            "accounts.user_password_reset",
+            "authentication.user_password_reset",
             token=token,
             _scheme="http",
             _external=True,

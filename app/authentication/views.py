@@ -10,6 +10,7 @@ from .. import db
 from .forms import LoginForm
 from .forms import UnlockScreenForm
 from .forms import ResetPasswordForm
+from .forms import ForgotPasswordForm
 
 from app.models import User
 
@@ -69,9 +70,30 @@ def login():
     return flask.render_template("authentication/login.html", form=form)
 
 
-@authentication.route("/forgot_password")
+@authentication.route("/forgot_password", methods=["GET", "POST"])
 def forgot_password():
-    return flask.render_template("authentication/forgot_password.html")
+    # Ensure only unauthenticated users can access this
+    if current_user.is_authenticated:
+        flask.flash("You are already authenticated")
+        return flask.redirect(flask.url_for("profiles.dashboard"))
+
+    form = ForgotPasswordForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(
+            emailAddress=form.email_address.data
+        ).first()
+        if user:
+            user.sendPasswordResetEmail()
+
+            # Render success message
+            flask.flash("Password reset email sent successfully")
+            return flask.redirect(
+                flask.url_for("authentication.forgot_password")
+            )
+
+    return flask.render_template(
+        "authentication/forgotten_password.html", form=form
+    )
 
 
 @authentication.route("/unconfirmed")
@@ -113,7 +135,7 @@ def resend_confirmation_link():
 def user_password_reset(token):
     # Functionality limited to stranded users
     if not current_user.is_anonymous:
-        return flask.redirect(flask.url_for("users.dashboard"))
+        return flask.redirect(flask.url_for("profiles.dashboard"))
 
     # Handle form rendering and submission
     form = ResetPasswordForm()
@@ -124,7 +146,7 @@ def user_password_reset(token):
         # Handle successful reset
         if successful:
             flask.flash("Password updated successfully")
-            return flask.redirect(flask.url_for("authentication.user_login"))
+            return flask.redirect(flask.url_for("authentication.login"))
 
         # Flash failure message
         flask.flash("The link you used is either expired or corrupted")
