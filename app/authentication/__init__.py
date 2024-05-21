@@ -1,8 +1,10 @@
 from flask import Blueprint, current_app
 
-authentication = Blueprint('authentication', __name__, 
-        url_prefix = '/authentication')
+authentication = Blueprint(
+    "authentication", __name__, url_prefix="/authentication"
+)
 from . import views, errors
+
 
 @authentication.app_context_processor
 def global_variables():
@@ -11,7 +13,7 @@ def global_variables():
     belonging to the 'authentication' blueprint.
 
     Returns:
-        dict: A dictionary containing global variables to be injected into 
+        dict: A dictionary containing global variables to be injected into
         templates.
     """
-    return dict(app_name = current_app.config['ORGANIZATION_NAME'])
+    return dict(app_name=current_app.config["ORGANIZATION_NAME"])
