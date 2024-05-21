@@ -9,7 +9,6 @@ from sqlalchemy import func
 from geopy.geocoders import ArcGIS
 from flask_login import current_user
 from flask_login import login_required
-from flask_sqlalchemy import get_debug_queries
 
 from . import profiles
 from .. import db
@@ -23,23 +22,7 @@ from app.models import Report
 from app.models import Reward
 from app.models import Category
 from app.models import Comment
-from app.models import User_Reward
-
-
-@profiles.after_app_request
-def after_request(response):
-    for query in get_debug_queries():
-        if query.duration >= flask.current_app.config["SLOW_DB_QUERY_TIME"]:
-            flask.current_app.logger.warning(
-                "Slow query: %s\nParameters: %s\nDuration: %fs\nContext: %s\n"
-                % (
-                    query.statement,
-                    query.parameters,
-                    query.duration,
-                    query.context,
-                )
-            )
-    return response
+from app.models import UserReward
 
 
 @profiles.route("/user_profile")
@@ -170,11 +153,11 @@ def analytics():
             User.userName,
             func.count(Report.reportId),
             func.count(Comment.commentId),
-            func.count(User_Reward.userRewardId),
+            func.count(UserReward.userRewardId),
         )
         .outerjoin(Report, User.userId == Report.userId)
         .outerjoin(Comment, Report.reportId == Comment.reportId)
-        .outerjoin(User_Reward, User.userId == User_Reward.userId)
+        .outerjoin(UserReward, User.userId == User_Reward.userId)
         .group_by(User.userName)
         .all()
     )
@@ -195,10 +178,10 @@ def analytics():
     )
 
     top_rewards = (
-        db.session.query(Reward.name, func.count(User_Reward.userRewardId))
-        .join(User_Reward)
+        db.session.query(Reward.name, func.count(UserReward.userRewardId))
+        .join(UserReward)
         .group_by(Reward.name)
-        .order_by(func.count(User_Reward.userRewardId).desc())
+        .order_by(func.count(UserReward.userRewardId).desc())
         .limit(10)
         .all()
     )
@@ -372,10 +355,10 @@ def manage_users():
 @profiles.route("/personal_analytics")
 @login_required
 def personal_analytics():
-    assigned_rewards = User_Reward.query.filter(
+    assigned_rewards = UserReward.query.filter(
         User.userId == current_user.userId
     ).all()
-    claimed_rewards = User_Reward.query.filter(
+    claimed_rewards = UserReward.query.filter(
         User.userId == current_user.userId
     ).all()
     rewards_eligible = Reward.query.filter(

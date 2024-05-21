@@ -2,7 +2,7 @@ from app import db
 from datetime import datetime
 
 
-class User_Reward(db.Model):
+class UserReward(db.Model):
     __tablename__ = "user_reward"
     userRewardId = db.Column(db.Integer, primary_key=True, autoincrement=True)
     userId = db.Column(db.Integer, db.ForeignKey("user.userId"))

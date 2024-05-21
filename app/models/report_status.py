@@ -3,7 +3,7 @@ from datetime import datetime
 from app import db
 
 
-class Report_Status(db.Model):
+class ReportStatus(db.Model):
     __tablename__ = "report_status"
     reportStatusId = db.Column(
         db.Integer, primary_key=True, autoincrement=True

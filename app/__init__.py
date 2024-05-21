@@ -1,6 +1,6 @@
 import flask
-import flask_mail
 import flask_moment
+import flask_mailman
 import flask_sqlalchemy
 import flask_bootstrap
 from flask_login import LoginManager
@@ -11,7 +11,7 @@ from config import config
 login_manager = LoginManager()
 login_manager.login_view = "authentication.login"
 
-mail = flask_mail.Mail()
+mail = flask_mailman.Mail()
 db = flask_sqlalchemy.SQLAlchemy()
 moment = flask_moment.Moment()
 bootstrap = flask_bootstrap.Bootstrap()

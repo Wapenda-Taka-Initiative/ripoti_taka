@@ -6,10 +6,8 @@ from flask_login import AnonymousUserMixin
 from werkzeug.security import check_password_hash
 from werkzeug.security import generate_password_hash
 
-from . import db
-from . import login_manager
-
-from .role import Role
+from app import login_manager
+from app import db
 
 
 @login_manager.user_loader
@@ -21,7 +19,7 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-class Anonymous_User(AnonymousUserMixin):
+class AnonymousUser(AnonymousUserMixin):
     def can(self, permission):
         return False
 
@@ -29,7 +27,7 @@ class Anonymous_User(AnonymousUserMixin):
         return False
 
 
-login_manager.anonymous_user = Anonymous_User
+login_manager.anonymous_user = AnonymousUser
 
 
 class User(UserMixin, db.Model):
@@ -71,6 +69,8 @@ class User(UserMixin, db.Model):
 
         # Assign default role to user
         if self.role is None:
+            from .role import Role
+
             if (
                 self.emailAddress
                 == flask.current_app.config["ADMINISTRATOR_EMAIL"]
