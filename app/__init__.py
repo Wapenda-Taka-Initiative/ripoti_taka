@@ -1,24 +1,30 @@
 import flask
-import flask_sqlalchemy
-import flask_bootstrap
 import flask_mail
 import flask_moment
+import flask_sqlalchemy
+import flask_bootstrap
 from flask_login import LoginManager
+
 from config import config
 
-#set endpoint for the login page
+# set endpoint for the login page
 login_manager = LoginManager()
-login_manager.login_view = 'authentication.login'
+login_manager.login_view = "authentication.login"
 
 mail = flask_mail.Mail()
 db = flask_sqlalchemy.SQLAlchemy()
 moment = flask_moment.Moment()
 bootstrap = flask_bootstrap.Bootstrap()
 
+
 def create_app(config_name):
     """
-    Application initialization.
-    Takes as an argument one of the configuration classes defined in config.py
+    Initialize and configure the Flask application.
+
+    :param config_name: str - The name of the configuration class defined in
+        config.py.
+
+    :return app: Flask - The configured Flask application instance.
     """
 
     app = flask.Flask(__name__)
@@ -30,23 +36,29 @@ def create_app(config_name):
     moment.init_app(app)
     login_manager.init_app(app)
 
-    if app.config['SSL_REDIRECT']:
+    if app.config["SSL_REDIRECT"]:
         from flask_sslify import SSLify
-        sslify = SSLify(app)
+
+        SSLify(app)
 
     from .main import main as main_blueprint
+
     app.register_blueprint(main_blueprint)
-    
+
     from .authentication import authentication as authentication_blueprint
+
     app.register_blueprint(authentication_blueprint)
-    
+
     from .registration import registration as registration_blueprint
+
     app.register_blueprint(registration_blueprint)
-    
+
     from .administration import administration as administration_blueprint
+
     app.register_blueprint(administration_blueprint)
-    
+
     from .profiles import profiles as profiles_blueprint
+
     app.register_blueprint(profiles_blueprint)
-    
+
     return app
