@@ -80,7 +80,7 @@ def confirm(token):
     else:
         flask.flash("The confirmation link is invalid or has expired")
 
-    return flask.redirect(flask.url_for("main.index"))
+    return flask.redirect(flask.url_for("profiles.dashboard"))
 
 
 @authentication.route("/confirm")

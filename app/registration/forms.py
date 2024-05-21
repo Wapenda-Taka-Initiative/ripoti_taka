@@ -60,16 +60,3 @@ class ResetPasswordForm(FlaskForm):
     password2 = PasswordField(
         "Repeat Password", validators=[DataRequired(), EqualTo("password")]
     )
-
-
-class ResetUsernameForm(FlaskForm):
-    user_name = StringField(
-        "Enter New Username", validators=[InputRequired(), Length(3, 64)]
-    )
-
-
-class ResetEmailForm(FlaskForm):
-    email_address = StringField(
-        "Enter New Email Address",
-        validators=[InputRequired(), Email(), Length(10, 128)],
-    )

@@ -33,7 +33,7 @@ class Role(db.Model):
 
         for r in roles:
             role = Role.query.filter_by(name=r).first()
-            if role in None:
+            if role is None:
                 role = Role(name=r)
 
             role.reset_permissions()

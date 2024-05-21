@@ -16,7 +16,6 @@ from .forms import RegistrationForm
 from .forms import EditUserProfileForm
 
 from app.models import User
-from utilities.email import send_email
 
 
 @registration.route(
@@ -65,14 +64,7 @@ def register_user():
         )
         db.session.add(user)
         db.session.commit()
-        token = user.generate_confirmation_token()
-        send_email(
-            user.email,
-            "Confirm Your Account",
-            "authentication/email/confirm",
-            user=user,
-            token=token,
-        )
+
         flask.flash("A confirmation email has been sent to you.")
         return flask.redirect(flask.url_for("main.index"))
 
