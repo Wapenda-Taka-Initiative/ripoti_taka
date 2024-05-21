@@ -6,7 +6,9 @@ from flask_login import login_required
 
 from . import authentication
 from .. import db
+
 from .forms import LoginForm
+from .forms import UnlockScreenForm
 from .forms import ResetPasswordForm
 
 from app.models import User
@@ -33,14 +35,30 @@ def logout():
 
 @authentication.route("/login", methods=["GET", "POST"])
 def login():
+    # Ensure only unauthenticated users can login
+    if current_user.is_authenticated:
+        flask.flash("You are already logged in", "warning")
+        return flask.redirect(flask.url_for("profiles.dashboard"))
+
+    # Initialize login form
     form = LoginForm()
+
+    # Set session as unlocked
+    flask.session.permanent = True
+    flask.session["locked"] = False
 
     # Check whether the user logged in by submitting to a form
     if form.validate_on_submit():
-        user = User.query.filter_by(userName=form.user_name.data).first()
+        user = User.query.filter_by(
+            emailAddress=form.email_address.data
+        ).first()
 
         if user is not None and user.verify_password(form.password.data):
             login_user(user, form.remember_me.data)
+
+            # Set session as unlocked
+            flask.session.permanent = True
+            flask.session["locked"] = False
 
             next = flask.request.args.get("next")
             if next is None or not next.startswith("/"):
@@ -112,4 +130,55 @@ def user_password_reset(token):
         flask.flash("The link you used is either expired or corrupted")
     return flask.render_template(
         "authentication/password_reset.html", form=form
+    )
+
+
+@authentication.route("/screen/lock", methods=["GET"])
+@login_required
+def lock_screen():
+    # Ensure that unlocked sessions can do this
+    if flask.session["locked"]:
+        flask.flash("This session is already locked")
+        return flask.redirect(flask.url_for("authentication.unlock_screen"))
+
+    # Mark the session as locked
+    flask.session.permanent = True
+    flask.session["locked"] = True
+
+    # Render success message
+    flask.flash("Screen locked successfully. ")
+
+    # Redirect to unlock screen
+    return flask.redirect(flask.url_for("authentication.unlock_screen"))
+
+
+@authentication.route("/screen/unlock", methods=["GET", "POST"])
+@login_required
+def unlock_screen():
+    # Ensure only locked sessions can do this
+    if not flask.session["locked"]:
+        flask.flash("This session is not locked", "warning")
+        return flask.redirect(flask.url_for("profiles.dashboard"))
+
+    # Initialize unlock screen form
+    form = UnlockScreenForm()
+
+    if form.validate_on_submit():
+        # Validate user password
+        success = current_user.verify_password(form.password.data)
+        if success:
+            flask.session.permanent = True
+            flask.session["locked"] = False
+
+            # Render success message
+            flask.flash("Screen unlocked successfully.", "success")
+            return flask.redirect(flask.url_for("profiles.dashboard"))
+
+        # Render failure message
+        flask.flash(
+            "You provided an invalid password. Please try again!", "critical"
+        )
+
+    return flask.render_template(
+        "authentication/unlock_screen.html", form=form
     )

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}
+Confirm Your Account
+{% endblock title %}
+
+{% block page_content %}
+<div class="flex flex-col items-center justify-center h-screen bg-gray-100">
+  <div class="bg-white p-6 rounded-lg shadow-lg max-w-md text-center space-y-4">
+    <h1 class="text-3xl font-semibold text-indigo-600">
+      Screen Locked!
+    </h1>
+    <h3 class="text-lg text-gray-600">Your screen is locked. Please provide your password to continue.</h3>
+    <div class="container">
+      <form method="POST" action="{{ url_for('authentication.unlock_screen') }}">
+				{{ form.hidden_tag() }}
+				<div class="mb-4">
+					{{ form.password(class="w-full border rounded-lg py-2 px-3 focus:outline-none focus:border-blue-500") }}
+					{% for error in form.password.errors %}
+					<p class="text-red-500">{{ error }}</p>
+					{% endfor %}
+				</div>
+        <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-300">Unlock</button>
+			</form>
+    </div>
+  </div>
+</div>
+{% endblock page_content %}

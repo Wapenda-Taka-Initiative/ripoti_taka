@@ -25,6 +25,20 @@ from app.models import Comment
 from app.models import UserReward
 
 
+@profiles.before_app_request
+def before_request():
+    if (
+        current_user.is_authenticated
+        and flask.session["locked"]
+        and flask.request.blueprint != "profiles"
+        and flask.request.blueprint != "static"
+        and not flask.request.path.startswith(
+            flask.url_for("authentication.unlock_screen")
+        )
+    ):
+        return flask.redirect(flask.url_for("authentication.unlock_screen"))
+
+
 @profiles.route("/user_profile")
 @login_required
 def user_profile():
@@ -157,7 +171,7 @@ def analytics():
         )
         .outerjoin(Report, User.userId == Report.userId)
         .outerjoin(Comment, Report.reportId == Comment.reportId)
-        .outerjoin(UserReward, User.userId == User_Reward.userId)
+        .outerjoin(UserReward, User.userId == UserReward.userId)
         .group_by(User.userName)
         .all()
     )
