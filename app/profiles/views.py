@@ -86,7 +86,7 @@ def create_report():
         except Exception:
             flask.flash(
                 "Attempt to locate coordinates for provided location failed!",
-                "failure",
+                "warning",
             )
         db.session.add(report)
         db.session.commit()

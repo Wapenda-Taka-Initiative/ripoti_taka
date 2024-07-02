@@ -30,7 +30,7 @@ def before_request():
 @login_required
 def logout():
     logout_user()
-    flask.flash("You've been logged out.")
+    flask.flash("You've been logged out.", "success")
     return flask.redirect(flask.url_for("authentication.login"))
 
 
@@ -66,7 +66,7 @@ def login():
                 next = flask.url_for("profiles.dashboard")
             return flask.redirect(next)
 
-        flask.flash("Invalid username or password")
+        flask.flash("Invalid username or password", "critical")
     return flask.render_template("authentication/login.html", form=form)
 
 
@@ -74,7 +74,7 @@ def login():
 def forgot_password():
     # Ensure only unauthenticated users can access this
     if current_user.is_authenticated:
-        flask.flash("You are already authenticated")
+        flask.flash("You are already authenticated", "warning")
         return flask.redirect(flask.url_for("profiles.dashboard"))
 
     form = ForgotPasswordForm()
@@ -86,7 +86,7 @@ def forgot_password():
             user.sendPasswordResetEmail()
 
             # Render success message
-            flask.flash("Password reset email sent successfully")
+            flask.flash("Password reset email sent successfully", "success")
             return flask.redirect(
                 flask.url_for("authentication.forgot_password")
             )
@@ -115,10 +115,15 @@ def confirm(token):
 
     if current_user.confirm(token):
         db.session.commit()
-        flask.flash("You have confirmed your account successfully. Welcome!!!")
+        flask.flash(
+            "You have confirmed your account successfully. Welcome!!!",
+            "success",
+        )
 
     else:
-        flask.flash("The confirmation link is invalid or has expired")
+        flask.flash(
+            "The confirmation link is invalid or has expired", "critical"
+        )
 
     return flask.redirect(flask.url_for("profiles.dashboard"))
 
@@ -127,7 +132,9 @@ def confirm(token):
 @login_required
 def resend_confirmation_link():
     current_user.sendConfirmationEmail()
-    flask.flash("A new confirmation email has been sent to you by email")
+    flask.flash(
+        "A new confirmation email has been sent to you by email", "success"
+    )
     return flask.redirect(flask.url_for("main.index"))
 
 
@@ -145,11 +152,13 @@ def user_password_reset(token):
 
         # Handle successful reset
         if successful:
-            flask.flash("Password updated successfully")
+            flask.flash("Password updated successfully", "success")
             return flask.redirect(flask.url_for("authentication.login"))
 
         # Flash failure message
-        flask.flash("The link you used is either expired or corrupted")
+        flask.flash(
+            "The link you used is either expired or corrupted", "critical"
+        )
     return flask.render_template(
         "authentication/password_reset.html", form=form
     )
@@ -160,7 +169,7 @@ def user_password_reset(token):
 def lock_screen():
     # Ensure that unlocked sessions can do this
     if flask.session["locked"]:
-        flask.flash("This session is already locked")
+        flask.flash("This session is already locked", "warning")
         return flask.redirect(flask.url_for("authentication.unlock_screen"))
 
     # Mark the session as locked
@@ -168,7 +177,7 @@ def lock_screen():
     flask.session["locked"] = True
 
     # Render success message
-    flask.flash("Screen locked successfully. ")
+    flask.flash("Screen locked successfully", "success")
 
     # Redirect to unlock screen
     return flask.redirect(flask.url_for("authentication.unlock_screen"))
