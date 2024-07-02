@@ -106,87 +106,19 @@ Solid waste management in Nairobi County faces challenges such as inadequate cov
 │   │   └── views.py
 │   ├── static
 │   │   ├── assets
-│   │   │   ├── css
-│   │   │   │   ├── tailwind.css
-│   │   │   │   └── tailwind.output.css
-│   │   │   └── js
-│   │   │       ├── charts-bars.js
-│   │   │       ├── charts-lines.js
-│   │   │       ├── charts-pie.js
-│   │   │       ├── focus-trap.js
-│   │   │       └── init-alpine.js
 │   │   └── img
-│   │       ├── community-engagement-home.jpg
-│   │       ├── data-driven-home.avif
-│   │       ├── efficient-reporting-home.gif
-│   │       ├── images_not_submitted.png
-│   │       ├── nairobi-home.jpg
-│   │       ├── real-time-update-home.gif
-│   │       ├── reward-home.gif
-│   │       ├── savannah.jpg
-│   │       ├── sustainable-home.png
-│   │       └── trash.jpg
 │   └── templates
 │       ├── 401.html
 │       ├── 403.html
 │       ├── 404.html
 │       ├── 500.html
 │       ├── administration
-│       │   ├── 403.html
-│       │   ├── 404.html
-│       │   └── 500.html
 │       ├── authentication
-│       │   ├── 403.html
-│       │   ├── 404.html
-│       │   ├── 500.html
-│       │   ├── forgotten_password.html
-│       │   ├── login.html
-│       │   ├── password_reset.html
-│       │   ├── reset_password.html
-│       │   ├── unconfirmed.html
-│       │   └── unlock_screen.html
 │       ├── base.html
 │       ├── email
-│       │   ├── confirm_account.html
-│       │   ├── confirm_account.txt
-│       │   ├── password_reset.html
-│       │   └── password_reset.txt
 │       ├── main
-│       │   ├── 403.html
-│       │   ├── 404.html
-│       │   ├── 500.html
-│       │   ├── contact.html
-│       │   ├── get_involved.html
-│       │   ├── index.html
-│       │   ├── privacy_policy.html
-│       │   └── terms_and_conditions.html
 │       ├── profiles
-│       │   ├── 403.html
-│       │   ├── 404.html
-│       │   ├── 500.html
-│       │   ├── analytics.html
-│       │   ├── create_report.html
-│       │   ├── dashboard.html
-│       │   ├── distribution_of_categories.html
-│       │   ├── edit_report.html
-│       │   ├── explore.html
-│       │   ├── latest_reports.html
-│       │   ├── manage_categories.html
-│       │   ├── manage_reports.html
-│       │   ├── manage_rewards.html
-│       │   ├── manage_users.html
-│       │   ├── member_contributions.html
-│       │   ├── personal_analytics.html
-│       │   ├── report_details.html
-│       │   ├── user_dashboard_base.html
-│       │   └── user_profile.html
 │       ├── registration
-│       │   ├── 401.html
-│       │   ├── 403.html
-│       │   ├── 404.html
-│       │   ├── 500.html
-│       │   ├── edit_user_profile.html
-│       │   └── register_user.html
 │       └── utilities.html
 ├── backup.sql
 ├── config.py
@@ -196,7 +128,7 @@ Solid waste management in Nairobi County faces challenges such as inadequate cov
 └── utilities
     └── email.py
 
-20 directories, 115 files
+18 directories, 49 files
 ```
 
 ### Key Files
