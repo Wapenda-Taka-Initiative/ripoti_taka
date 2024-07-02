@@ -8,50 +8,50 @@ Latest Reports
 {{ moment.include_moment() }}
 <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 <div class="mt-8">
-	<header class="bg-gradient-to-l from-purple-500 to-purple-600 rounded-lg p-6 text-white mb-8">
-		<h1 class="text-4xl font-semibold mb-2">View our latest reports</h1>
-		<p class="text-gray-200">Your report is one step away to achieving sustainable waste management in Kenya</p>
-	</header>
-	<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-		{% for report in reports %}
-		<div class="relative bg-{{ ['blue', 'green', 'yellow', 'purple'][loop.index % 4] }}-300 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition duration-300" style = "padding-top: 10px;">
-			<center>
-				<h3 class="text-lg font-semibold mb-2 text-blue-800">
-					Report ID:
-					<a style = "text-decoration: underline;" href="{{ url_for('profiles.report_details', report_id=report.reportId) }}">
-						#{{ report.reportId }}
-					</a>
-				</h3>
-			<div class="p-6">
-				<div class="mb-4">
-					<p class="text-sm font-semibold text-black-800">{{ report.category.name }}</p>
-					<p class="text-sm text-gray-600">{{ report.location }}</p>
-				</div>
-				<div class="flex justify-between items-center text-sm text-black-500">
-					<p>Date Created: {{ moment(report.dateCreated).format('LLLL') }}</p>
-					<p>Last Updated: {{ moment(report.lastUpdated).format('LLLL') }}</p>
-				</div>
-				<div class="mt-4">
-					<p class="text-sm">
-					Status:
-					{% if report.isResolved %}
-					<span class="font-semibold text-green-600">Resolved</span>
-					{% else %}
-					<span class="font-semibold text-red-600">Pending</span>
-					{% endif %}
-					</p>
-					<p class="text-sm text-gray-600">Reported by {{ report.user.userName }}</p>
-				</div>
-			</div>
-			<img src="{{ url_for('static', filename = 'images/reports/' ~ report.reportId ~ '/' ~ report.reportId ~ '_1.jpg') }}" onerror="handleError(this);" alt="Report Image" class="w-full">
-			</center>
-		</div>
-		{% endfor %}
-	</div>
+  <header class="bg-gradient-to-l from-purple-500 to-purple-600 rounded-lg p-6 text-white mb-8">
+    <h1 class="text-4xl font-semibold mb-2">View our latest reports</h1>
+    <p class="text-gray-200">Your report is one step away to achieving sustainable waste management in Kenya</p>
+  </header>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for report in reports %}
+    <div class="relative bg-{{ ['blue', 'green', 'yellow', 'purple'][loop.index % 4] }}-300 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition duration-300" style = "padding-top: 10px;">
+      <center>
+        <h3 class="text-lg font-semibold mb-2 text-blue-800">
+          Report ID:
+          <a style = "text-decoration: underline;" href="{{ url_for('profiles.report_details', report_id=report.reportId) }}">
+            #{{ report.reportId }}
+          </a>
+        </h3>
+        <div class="p-6">
+          <div class="mb-4">
+            <p class="text-sm font-semibold text-black-800">{{ report.category.name }}</p>
+            <p class="text-sm text-gray-600">{{ report.location }}</p>
+          </div>
+          <div class="flex justify-between items-center text-sm text-black-500">
+            <p>Date Created: {{ moment(report.dateCreated).format('LLLL') }}</p>
+            <p>Last Updated: {{ moment(report.lastUpdated).format('LLLL') }}</p>
+          </div>
+          <div class="mt-4">
+            <p class="text-sm">
+            Status:
+            {% if report.isResolved %}
+            <span class="font-semibold text-green-600">Resolved</span>
+            {% else %}
+            <span class="font-semibold text-red-600">Pending</span>
+            {% endif %}
+            </p>
+            <p class="text-sm text-gray-600">Reported by {{ report.user.userName }}</p>
+          </div>
+        </div>
+        <img src="{{ url_for('static', filename = 'images/reports/' ~ report.reportId ~ '/' ~ report.reportId ~ '_1.jpg') }}" onerror="handleError(this);" alt="Report Image" class="w-full">
+      </center>
+    </div>
+    {% endfor %}
+  </div>
 </div>
 <script>
-	function handleError(image) {
-	    image.src = "{{ url_for('static', filename = 'img/images_not_submitted.png') }}";
-	}
+  function handleError(image) {
+      image.src = "{{ url_for('static', filename = 'img/images_not_submitted.png') }}";
+    }
 </script>
 {% endblock content %}
