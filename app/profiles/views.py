@@ -294,6 +294,7 @@ def report_details(report_id):
 
             return flask.redirect(
                 flask.url_for("profiles.report_details", report_id=report_id)
+                + "#comments"
             )
 
     # retrieve image files associated with the report
