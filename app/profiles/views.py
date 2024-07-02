@@ -93,7 +93,7 @@ def create_report():
 
         # Create a folder for the report's images
         report_folder = os.path.join(
-            flask.current_profiles.config["REPORT_IMAGES_UPLOAD_PATH"],
+            flask.current_app.config["REPORT_IMAGES_UPLOAD_PATH"],
             str(report.reportId),
         )
         os.makedirs(report_folder, exist_ok=True)
