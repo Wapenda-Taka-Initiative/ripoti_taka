@@ -28,8 +28,8 @@ Latest Reports
             <p class="text-sm text-gray-600">{{ report.location }}</p>
           </div>
           <div class="flex justify-between items-center text-sm text-black-500">
-            <p>Date Created: {{ moment(report.dateCreated).format('LLLL') }}</p>
-            <p>Last Updated: {{ moment(report.lastUpdated).format('LLLL') }}</p>
+            <p><span class="font-semibold">Date Created</span> {{ moment(report.dateCreated).format('LLLL') }}</p>
+            <p><span class="font-semibold">Last Updated</span> {{ moment(report.lastUpdated).format('LLLL') }}</p>
           </div>
           <div class="mt-4">
             <p class="text-sm">
