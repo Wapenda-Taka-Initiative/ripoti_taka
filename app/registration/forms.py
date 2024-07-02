@@ -4,11 +4,12 @@ from wtforms import SelectField
 from wtforms import PasswordField
 from wtforms import TextAreaField
 from wtforms import ValidationError
-from wtforms.validators import InputRequired
+
 from wtforms.validators import Email
 from wtforms.validators import Length
 from wtforms.validators import EqualTo
 from wtforms.validators import DataRequired
+from wtforms.validators import InputRequired
 
 from app.models import User
 
@@ -21,7 +22,11 @@ class RegistrationForm(FlaskForm):
         "Email Address", validators=[InputRequired(), Email(), Length(10, 128)]
     )
     password = PasswordField(
-        "Password", validators=[InputRequired(), Length(8, 32)]
+        "Password",
+        validators=[
+            InputRequired(),
+            Length(8, 32),
+        ],
     )
     confirm_password = PasswordField(
         "Confirm Password",
@@ -59,17 +64,4 @@ class ResetPasswordForm(FlaskForm):
     password = PasswordField("Enter New Password", validators=[DataRequired()])
     password2 = PasswordField(
         "Repeat Password", validators=[DataRequired(), EqualTo("password")]
-    )
-
-
-class ResetUsernameForm(FlaskForm):
-    user_name = StringField(
-        "Enter New Username", validators=[InputRequired(), Length(3, 64)]
-    )
-
-
-class ResetEmailForm(FlaskForm):
-    email_address = StringField(
-        "Enter New Email Address",
-        validators=[InputRequired(), Email(), Length(10, 128)],
     )

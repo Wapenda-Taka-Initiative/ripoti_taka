@@ -5,46 +5,66 @@ Create Report
 {% endblock title %}
 
 {%block content %}
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCfGf7UHR5wJZXXqmwgb6Aggk7tBFw15-8&libraries=places"></script>
 <h2 class="my-6 text-2xl font-semibold text-gray-600 dark:text-gray-300">Report Your Situation</h2>
 <div class="container mx-auto mt-8 p-8 bg-white rounded-lg shadow-lg" style="padding: 20px;">
-	<form method="POST" enctype="multipart/form-data" action = "{{ url_for('profiles.create_report') }}">
-		{{ form.hidden_tag() }}
-		<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-			<div>
-				<label class="block text-sm font-semibold mb-2">Location</label>
-				{{ form.location(class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-blue-300") }}
-				{% for error in form.location.errors %}
-				<p class="text-red-500">{{ error }}</p>
-				{% endfor %}
-			</div>
-			<div class="mt-6">
-				<label class="block text-sm font-semibold mb-2">Category</label>
-				{{ form.category_id(class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-blue-300") }}
-				{% for error in form.category_id.errors %}
-				<p class="text-red-500">{{ error }}</p>
-				{% endfor %}
-			</div>
-		</div>
-
-		<div class="mt-6">
-			<label class="block text-sm font-semibold mb-2">Description</label>
-			{{ form.description(class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-blue-300", rows="4") }}
-			{% for error in form.description.errors %}
-			<p class="text-red-500">{{ error }}</p>
-			{% endfor %}
-		</div>
-
-		<div class="mt-6">
-			<label class="block text-sm font-semibold mb-2">Upload Images</label>
-			{{ form.images(class="w-full border rounded-lg py-2 focus:ring focus:ring-blue-300") }}
-			{% for error in form.images.errors %}
-			<p class="text-red-500">{{ error }}</p>
-			{% endfor %}
-		</div>
-
-		<button type="submit" class="bg-blue-500 text-white px-6 py-3 rounded-lg mt-6 hover:bg-blue-600 w-full md:w-auto">
-			Submit Report
-		</button>
-	</form>
+  <form method="POST" enctype="multipart/form-data" action="{{ url_for('profiles.create_report') }}">
+    {{ form.hidden_tag() }}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="mt-6">
+        <label class="block text-sm font-semibold mb-2">Location</label>
+        <input id="location" name="location" class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-blue-300">
+        <input type="hidden" id="formatted_address" name="formatted_address">
+        <input type="hidden" id="latitude" name="latitude">
+        <input type="hidden" id="longitude" name="longitude">
+        {% for error in form.location.errors %}
+        <p class="text-red-500">{{ error }}</p>
+        {% endfor %}
+      </div>
+      <div class="mt-6">
+        <label class="block text-sm font-semibold mb-2">Category</label>
+        {{ form.category_id(class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-blue-300") }}
+        {% for error in form.category_id.errors %}
+        <p class="text-red-500">{{ error }}</p>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="mt-6">
+      <label class="block text-sm font-semibold mb-2">Description</label>
+      {{ form.description(class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-blue-300", rows="4") }}
+      {% for error in form.description.errors %}
+      <p class="text-red-500">{{ error }}</p>
+      {% endfor %}
+    </div>
+    <div class="mt-6">
+      <label class="block text-sm font-semibold mb-2">Upload Images</label>
+      {{ form.images(class="w-full border rounded-lg py-2 focus:ring focus:ring-blue-300") }}
+      {% for error in form.images.errors %}
+      <p class="text-red-500">{{ error }}</p>
+      {% endfor %}
+    </div>
+    <div class="mt-6">
+      <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg">Submit</button>
+    </div>
+  </form>
 </div>
+<script>
+  function initialize() {
+      const input = document.getElementById('location');
+      const formattedAddressInput = document.getElementById('formatted_address');
+      const latitudeInput = document.getElementById('latitude');
+      const longitudeInput = document.getElementById('longitude');
+      const autocomplete = new google.maps.places.Autocomplete(input);
+
+      autocomplete.addListener('place_changed', function() {
+          const place = autocomplete.getPlace();
+          if (place && place.formatted_address) {
+              formattedAddressInput.value = place.formatted_address;
+              latitudeInput.value = place.geometry.location.lat();
+              longitudeInput.value = place.geometry.location.lng();
+            }
+        });
+    }
+  google.maps.event.addDomListener(window, 'load', initialize);
+</script>
 {% endblock content %}

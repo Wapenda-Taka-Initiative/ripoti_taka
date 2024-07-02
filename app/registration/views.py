@@ -16,7 +16,6 @@ from .forms import RegistrationForm
 from .forms import EditUserProfileForm
 
 from app.models import User
-from utilities.email import send_email
 
 
 @registration.route(
@@ -39,7 +38,7 @@ def edit_profile_image(user_id):
         user.imageUrl = filename
         db.session.add(user)
         db.session.commit()
-        flask.flash("Profile image updated successfully")
+        flask.flash("Profile image updated successfully", "success")
 
         # Redirect user accordingly
         return flask.redirect(
@@ -47,7 +46,7 @@ def edit_profile_image(user_id):
         )
 
     # No image found
-    flask.flash("Profile image update failed")
+    flask.flash("Profile image update failed", "critical")
     return flask.redirect(
         flask.url_for("profiles.contributor_profile", user_id=user_id)
     )
@@ -65,16 +64,13 @@ def register_user():
         )
         db.session.add(user)
         db.session.commit()
-        token = user.generate_confirmation_token()
-        send_email(
-            user.email,
-            "Confirm Your Account",
-            "authentication/email/confirm",
-            user=user,
-            token=token,
-        )
-        flask.flash("A confirmation email has been sent to you.")
-        return flask.redirect(flask.url_for("main.index"))
+
+        # Send confirmation email
+        user.sendConfirmationEmail()
+
+        # Render success message
+        flask.flash("A confirmation email has been sent to you.", "success")
+        return flask.redirect(flask.url_for("authentication.login"))
 
     return flask.render_template("registration/register_user.html", form=form)
 
@@ -99,7 +95,7 @@ def edit_user_profile(user_id):
 
         db.session.add(user)
         db.session.commit()
-        flask.flash("User profile updated successfully")
+        flask.flash("User profile updated successfully", "success")
 
         if user.userId == current_user.userId:
             return flask.redirect(flask.url_for("profiles.user_profile"))

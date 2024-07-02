@@ -1,13 +1,18 @@
+import logging
+
 import flask
 import hashlib
+from flask import url_for
 from datetime import datetime
 from flask_login import UserMixin
 from flask_login import AnonymousUserMixin
 from werkzeug.security import check_password_hash
 from werkzeug.security import generate_password_hash
+from itsdangerous.url_safe import URLSafeTimedSerializer as Serializer
 
 from app import login_manager
 from app import db
+from utilities.email import send_email
 
 
 @login_manager.user_loader
@@ -115,3 +120,155 @@ class User(UserMixin, db.Model):
 
     def verify_password(self, password):
         return check_password_hash(self.passwordHash, password)
+
+    @staticmethod
+    def reset_password(token, new_password):
+        """
+        Reset user password.
+
+        :param new_password: str - the new password.
+
+        :return: bool - True if the password reset is successful, False
+            otherwise.
+        """
+        serializer = Serializer(flask.current_app.config["SECRET_KEY"])
+        try:
+            data = serializer.loads(token.encode("utf-8"))
+
+        except Exception:
+            return False
+
+        user = User.query.get(data.get("reset"))
+        if user is None:
+            return False
+
+        user.password = new_password
+        db.session.add(user)
+        db.session.commit()
+
+        return True
+
+    def generateConfirmationToken(self):
+        """
+        Generate a confirmation token.
+
+        This method generates a token for confirming the user's email address.
+
+        :return: str - The confirmation token.
+        """
+        serializer = Serializer(flask.current_app.config["SECRET_KEY"])
+        return serializer.dumps(self.emailAddress)
+
+    def confirm(self, token, expiration=3600):
+        """
+        Uses a token to confirm the users's email address.
+
+        :param token: str - Contains user's email address within it.
+        :param expiration: int - Determines the validity of the provided token.
+
+        :return: bool - True if confirmation is successful, False otherwise.
+        """
+        serializer = Serializer(flask.current_app.config["SECRET_KEY"])
+
+        try:
+            data = serializer.loads(token, max_age=expiration)
+
+        except Exception:
+            return False
+
+        # Ensure that the link is not corrupted
+        if data != self.emailAddress:
+            return False
+
+        # Update confirm status
+        self.confirmed = True
+        db.session.commit()
+
+        return True
+
+    def sendPasswordResetEmail(self):
+        """
+        Send password reset email to the user.
+        """
+        token = self.generateConfirmationToken()
+        reset_link = url_for(
+            "authentication.user_password_reset",
+            token=token,
+            _scheme="http",
+            _external=True,
+        )
+
+        subject = "Password Reset Request"
+        send_email(
+            [self.emailAddress],
+            subject,
+            "email/password_reset",
+            user=self,
+            reset_link=reset_link,
+        )
+
+    def sendConfirmationEmail(self):
+        """
+        Send confirmation email to the user.
+        """
+        token = self.generateConfirmationToken()
+        print(token)
+        confirmation_link = url_for(
+            "authentication.confirm",
+            token=token,
+            _scheme="http",
+            _external=True,
+        )
+        print(confirmation_link)
+        subject = "Email Confirmation"
+        send_email(
+            [self.emailAddress],
+            subject,
+            "email/confirm_account",
+            user=self,
+            confirmation_link=confirmation_link,
+        )
+
+    @staticmethod
+    def confirmPasswordResetToken(token, expiration=3600):
+        """
+        Validate password request link provided.
+        """
+        serializer = Serializer(flask.current_app.config["SECRET_KEY"])
+
+        try:
+            data = serializer.loads(token, max_age=expiration)
+            user = User.query.filter_by(emailAddress=data).first()
+
+            return user
+
+        except Exception as e:
+            logging.error(
+                f"An error occured while loading the token: {str(e)}"
+            )
+            return None
+
+    @staticmethod
+    def resetPassword(token, new_password, expiration=3600):
+        """
+        Reset user's password.
+
+        :param token: str - the token for password reset.
+        :param new_password: str - the new password.
+        """
+        serializer = Serializer(flask.current_app.config["SECRET_KEY"])
+        try:
+            data = serializer.loads(token, expiration)
+
+        except Exception:
+            return False
+
+        user = User.query.filter_by(emailAddress=data).first()
+        if user is None:
+            return False
+
+        user.password = new_password
+        db.session.add(user)
+        db.session.commit()
+
+        return True

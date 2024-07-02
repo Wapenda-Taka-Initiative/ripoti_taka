@@ -25,6 +25,20 @@ from app.models import Comment
 from app.models import UserReward
 
 
+@profiles.before_app_request
+def before_request():
+    if (
+        current_user.is_authenticated
+        and flask.session["locked"]
+        and flask.request.blueprint != "profiles"
+        and flask.request.blueprint != "static"
+        and not flask.request.path.startswith(
+            flask.url_for("authentication.unlock_screen")
+        )
+    ):
+        return flask.redirect(flask.url_for("authentication.unlock_screen"))
+
+
 @profiles.route("/user_profile")
 @login_required
 def user_profile():
@@ -72,14 +86,14 @@ def create_report():
         except Exception:
             flask.flash(
                 "Attempt to locate coordinates for provided location failed!",
-                "failure",
+                "warning",
             )
         db.session.add(report)
         db.session.commit()
 
         # Create a folder for the report's images
         report_folder = os.path.join(
-            flask.current_profiles.config["REPORT_IMAGES_UPLOAD_PATH"],
+            flask.current_app.config["REPORT_IMAGES_UPLOAD_PATH"],
             str(report.reportId),
         )
         os.makedirs(report_folder, exist_ok=True)
@@ -157,7 +171,7 @@ def analytics():
         )
         .outerjoin(Report, User.userId == Report.userId)
         .outerjoin(Comment, Report.reportId == Comment.reportId)
-        .outerjoin(UserReward, User.userId == User_Reward.userId)
+        .outerjoin(UserReward, User.userId == UserReward.userId)
         .group_by(User.userName)
         .all()
     )
@@ -280,6 +294,7 @@ def report_details(report_id):
 
             return flask.redirect(
                 flask.url_for("profiles.report_details", report_id=report_id)
+                + "#comments"
             )
 
     # retrieve image files associated with the report
