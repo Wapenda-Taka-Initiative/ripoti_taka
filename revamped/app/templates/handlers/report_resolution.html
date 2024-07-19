@@ -1,0 +1,70 @@
+{% extends "handlers/user_dashboard_base.html" %}
+
+{% block title %}
+Create Resolution Form
+{% endblock title %}
+
+{% block content %}
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<h2 class="my-6 text-2xl font-semibold text-gray-600 dark:text-gray-300">Create Resolution Form</h2>
+<div class="container mx-auto mt-8 p-8 bg-white rounded-lg shadow-lg" style="padding: 20px;">
+  <form method="POST" enctype="multipart/form-data" action="">
+    {{ form.hidden_tag() }}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="mt-6">
+        <label class="block text-sm font-semibold mb-2">Initial Situation Description</label>
+        {{ form.initialSituationDescription(class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-blue-300", rows="4") }}
+        {% for error in form.initialSituationDescription.errors %}
+        <p class="text-red-500">{{ error }}</p>
+        {% endfor %}
+      </div>
+      <div class="mt-6">
+        <label class="block text-sm font-semibold mb-2">Steps Taken</label>
+        {{ form.stepsTaken(class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-blue-300", rows="4") }}
+        {% for error in form.stepsTaken.errors %}
+        <p class="text-red-500">{{ error }}</p>
+        {% endfor %}
+      </div>
+      <div class="mt-6">
+        <label class="block text-sm font-semibold mb-2">Recommendations</label>
+        {{ form.recommendations(class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-blue-300", rows="4") }}
+        {% for error in form.recommendations.errors %}
+        <p class="text-red-500">{{ error }}</p>
+        {% endfor %}
+      </div>
+      <div class="mt-6">
+        <label class="block text-sm font-semibold mb-2">Potential Causes</label>
+        {{ form.potentialCauses(class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-blue-300", rows="4") }}
+        {% for error in form.potentialCauses.errors %}
+        <p class="text-red-500">{{ error }}</p>
+        {% endfor %}
+      </div>
+      <div class="mt-6">
+        <label class="block text-sm font-semibold mb-2">Manpower Details</label>
+        {{ form.manPowerDetails(class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-blue-300", rows="4") }}
+        {% for error in form.manPowerDetails.errors %}
+        <p class="text-red-500">{{ error }}</p>
+        {% endfor %}
+      </div>
+      <div class="mt-6">
+        <label class="block text-sm font-semibold mb-2">Financial Costs</label>
+        {{ form.financialCosts(class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-blue-300", rows="4") }}
+        {% for error in form.financialCosts.errors %}
+        <p class="text-red-500">{{ error }}</p>
+        {% endfor %}
+      </div>
+      <div class="mt-6">
+        <label class="block text-sm font-semibold mb-2">Date Completed</label>
+        {{ form.dateCompleted(class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-blue-300") }}
+        {% for error in form.dateCompleted.errors %}
+        <p class="text-red-500">{{ error }}</p>
+        {% endfor %}
+      </div>
+      <div class="mt-6">
+        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg">Submit</button>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock content %}
+

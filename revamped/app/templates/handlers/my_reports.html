@@ -1,0 +1,53 @@
+{% extends "handlers/user_dashboard_base.html" %}
+
+{% block title %}
+Latest Reports
+{% endblock title %}
+
+{%block content %}
+{{ moment.include_moment() }}
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<div class="mt-8">
+  <header class="bg-gradient-to-l from-green-500 to-green-600 rounded-lg p-6 text-white mb-8">
+    <h1 class="text-4xl font-semibold mb-2">View reports handled by you</h1>
+  </header>
+  <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3.5">
+    {% for assignment in current_user.reportAssignments %}
+    {% set report = assignment.report %}
+    <div class="max-w-sm rounded bg-white overflow-hidden shadow-md flex flex-col sm:max-w-full h-full">
+      <div class="flex-grow">
+        <img src="{{ url_for('static', filename = 'images/reports/' ~ report.reportId ~ '/' ~ report.reportId ~ '_1.jpg') }}" onerror="handleError(this);" alt="Report Image" class="w-full md:h-48 sm:h-64 lg:h-72 xl:h-56 object-cover">
+        <div class="px-2 py-2">
+          <h3 class="font-bold text-red-700 text-base my-1">{{ report.locationAddress }}</h3>
+          <h5 class="font-bold text-green-500 text-gray-700 text-base my-1">{{ report.wasteType | title }}</h5>
+          <h6 class="text-gray-700 font-semibold text-base my-1">Description</h6>
+          <p class="text-gray-700 text-base">{{ report.description }}</p>
+          <p class="text-gray-700 text-base"><span class="font-semibold">Severity:</span> {{ report.severityLevel }}</p>
+          <p class="text-gray-700 text-base"><span class="font-semibold">Occurrence:</span> {{ report.periodOfOccurence }}</p>
+        </div>
+      </div>
+      <div class="px-2 pb-1 mt-auto">
+        <p class="text-gray-600 mt-0">
+        <span class="block text-gray-500 text-sm font-semibold mb-1">Status </span>
+        <span class="inline-block bg-gray-300 rounded-full px-3 py-1 text-sm font-semibold text-gray-700">{{ report.status }}</span>
+        </p>
+        <p class="text-gray-600 pb-2">
+        <span class="block text-gray-500 text-sm font-semibold mb-1">Date Reported </span>
+        <span class="inline-block text-sm font-semibold text-gray-700">{{ report.dateCreated.strftime('%B %d, %Y, %I:%M %p') }}</span>
+        </p>
+        <p class="text-gray-600">
+        <span class="block text-gray-500 text-sm font-semibold mb-1">Last Updated </span>
+        <span class="inline-block text-sm font-semibold text-gray-700">{{ report.lastUpdated.strftime('%B %d, %Y, %I:%M %p') }}</span>
+        </p>
+      </div>
+      <a href="{{ url_for('handlers.report_details', report_id=report.reportId) }}" class="text-center m-2 inline-block bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-full focus:outline-none focus:shadow-outline">View</a>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+<script>
+  function handleError(image) {
+      image.src = "{{ url_for('static', filename = 'img/images_not_submitted.png') }}";
+    }
+</script>
+{% endblock content %}

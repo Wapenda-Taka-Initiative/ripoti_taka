@@ -1,0 +1,136 @@
+{% extends "handlers/user_dashboard_base.html" %}
+
+{% block title %}
+Dashboard
+{% endblock title %}
+
+{% block scripts %}
+{{ super() }}
+{% endblock scripts %}
+
+{%block content %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+<style>
+#map {
+  width: 100%;
+  height: 500px;
+}
+</style>
+<div class="flex justify-center items-center min-h-screen">
+  <div class="w-full md:w-2/3">
+    <!-- Report mapping -->
+    <h2 class="my-6 text-2xl font-semibold text-gray-600 dark:text-gray-300">Report Mapping</h2>
+    <div id="map-container" class="mb-4">
+      <div id="map"></div>
+    </div>
+    <!-- Reports -->
+    <h2 class="my-6 text-2xl font-semibold text-gray-600 dark:text-gray-300">Reports</h2>
+    <div class="w-full mb-8 overflow-hidden">
+      <div class="w-full overflow-x-auto">
+        <table id="reportsTable" class="w-full">
+          <thead>
+            <tr class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800">
+              <th class="px-4 py-3">Location</th>
+              <th class="px-4 py-3">Waste Type</th>
+              <th class="px-4 py-3">Severity Level</th>
+              <th class="px-4 py-3">Period of Occurence</th>
+              <th class="px-4 py-3">Status</th>
+              <th class="px-4 py-3">Reported On</th>
+              <th class="px-4 py-3">Action</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800">
+            {% for report in reports[:10] %}
+            <tr class="text-gray-700 dark:text-gray-400">
+              <td class="px-4 py-3">
+                <div class="flex items-center">
+                  <div class="ml-2">
+                    <a href="{{ url_for('handlers.report_details', report_id=report.reportId) }}" class="text-blue-500 hover:underline">
+                      {{ report.locationAddress }}
+                    </a>
+                  </div>
+                </div>
+              </td>
+              <td class="px-4 py-3">
+                <div class="flex items-center">
+                  <div class="ml-2">
+                    {{ report.wasteType }}
+                  </div>
+                </div>
+              </td>
+              <td class="px-4 py-3">
+                <div class="flex items-center">
+                  <div class="ml-2">
+                    {{ report.severityLevel }}
+                  </div>
+                </div>
+              </td>
+              <td class="px-4 py-3">
+                <div class="flex items-center">
+                  <div class="ml-2">
+                    {{ report.periodOfOccurence }}
+                  </div>
+                </div>
+              </td>
+              <td class="px-4 py-3">
+                <div class="flex items-center">
+                  <div class="ml-2">
+                    {{ report.status }}
+                  </div>
+                </div>
+              </td>
+              <td class="px-4 py-3">
+                <div class="flex items-center">
+                  <div class="ml-2">
+                    {{ moment(report.dateCreated).format('LLLL') }}
+                  </div>
+                </div>
+              </td>
+              <td class="px-4 py-3">
+                <div class="flex items-center">
+                  <div class="ml-2">
+                    <a href="{{ url_for('handlers.report_details', report_id=report.reportId) }}" class="text-blue-500 hover:underline">
+                      View
+                    </a>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <style>
+table#w-full th, table#w-full td {
+  word-wrap: break-word;
+  white-space: normal;
+}
+    </style>
+
+  </div>
+</div>
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script>
+  const kenyaCenter = { lat: -1.2921, lng: 36.8219 };
+  const map = L.map('map').setView([kenyaCenter.lat, kenyaCenter.lng], 7);
+  const kenyaBounds = [
+      [4.831, 36.909],
+      [-4.963, 40.899]
+    ];
+  map.fitBounds(kenyaBounds);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+  {% for report in reports %}
+  {% if report.latitude and report.longitude %}
+  L.marker([{{ report.latitude }}, {{ report.longitude }}]).addTo(map)
+    .bindPopup('<div class="text-center"> <a href="{{ url_for('handlers.report_details', report_id=report.reportId) }}" class="text-blue-500 hover:underline text-lg"></a><div class="mt-4"><p style = "color:red;">{{ report.locationAddress }}</p><img src="{{ url_for('static', filename = 'images/reports/' + report.reportId | string + '/' + report.reportId | string + '_1.jpg') }}" alt="Report Image" class="w-32 h-auto mx-auto rounded-lg shadow-md"></div></div>');
+  {% endif %}
+  {% endfor %}
+</script>
+{% endblock content %}
