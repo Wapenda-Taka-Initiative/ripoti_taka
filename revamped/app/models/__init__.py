@@ -1,0 +1,11 @@
+from app import db as db
+from .role import Role as Role
+from .permission import Permission as Permission
+from .user import User as User
+from .report import Report as Report
+from .report_assignment import ReportAssignment as ReportAssignment
+from .report_resolution import ReportResolution as ReportResolution
+from .handler import Handler as Handler
+from .category import Category as Category
+from .report_category import ReportCategory as ReportCategory
+from .comment import Comment as Comment
