@@ -1,0 +1,110 @@
+{% extends "profiles/user_dashboard_base.html" %}
+
+{% block title %}
+Create Report
+{% endblock title %}
+
+{% block content %}
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<h2 class="my-6 text-2xl font-semibold text-gray-600 dark:text-gray-300">Report Your Situation</h2>
+<div class="container mx-auto mt-8 p-8 bg-white rounded-lg shadow-lg" style="padding: 20px;">
+  <form method="POST" enctype="multipart/form-data" action="">
+    {{ form.hidden_tag() }}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="mt-6">
+        <label class="block text-sm font-semibold mb-2">Location</label>
+        {{ form.locationAddress(class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-blue-300", id="location-address") }}
+        {% for error in form.locationAddress.errors %}
+        <p class="text-red-500">{{ error }}</p>
+        {% endfor %}
+      </div>
+      <div class="mt-6">
+        <label class="block text-sm font-semibold mb-2">Latitude</label>
+        {{ form.latitude(class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-blue-300", id="latitude") }}
+        {% for error in form.latitude.errors %}
+        <p class="text-red-500">{{ error }}</p>
+        {% endfor %}
+      </div>
+      <div class="mt-6">
+        <label class="block text-sm font-semibold mb-2">Longitude</label>
+        {{ form.longitude(class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-blue-300", id="longitude") }}
+        {% for error in form.longitude.errors %}
+        <p class="text-red-500">{{ error }}</p>
+        {% endfor %}
+      </div>
+      <div class="mt-6">
+        <label class="block text-sm font-semibold mb-2">Waste Type</label>
+        {{ form.wasteType(class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-blue-300") }}
+        {% for error in form.wasteType.errors %}
+        <p class="text-red-500">{{ error }}</p>
+        {% endfor %}
+      </div>
+      <div class="mt-6">
+        <label class="block text-sm font-semibold mb-2">Description</label>
+        {{ form.description(class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-blue-300", rows="4") }}
+        {% for error in form.description.errors %}
+        <p class="text-red-500">{{ error }}</p>
+        {% endfor %}
+      </div>
+      <div class="mt-6">
+        <label class="block text-sm font-semibold mb-2">Severity Level</label>
+        {{ form.severityLevel(class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-blue-300") }}
+        {% for error in form.severityLevel.errors %}
+        <p class="text-red-500">{{ error }}</p>
+        {% endfor %}
+      </div>
+      <div class="mt-6">
+        <label class="block text-sm font-semibold mb-2">Period of Occurrence</label>
+        {{ form.periodOfOccurrence(class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-blue-300") }}
+        {% for error in form.periodOfOccurrence.errors %}
+        <p class="text-red-500">{{ error }}</p>
+        {% endfor %}
+      </div>
+      <div class="mt-6">
+        <label class="block text-sm font-semibold mb-2">Categories</label>
+        {{ form.categories(class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-blue-300") }}
+        {% for error in form.categories.errors %}
+        <p class="text-red-500">{{ error }}</p>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="grid grid-cols-1">
+      <div class="mt-6">
+        <label class="block text-sm font-semibold mb-2">Images</label>
+        {{ form.images(class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-blue-300") }}
+        {% for error in form.images.errors %}
+        <p class="text-red-500">{{ error }}</p>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="mt-6">
+      <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg">Submit</button>
+    </div>
+  </form>
+</div>
+
+<!-- Include Google Places API script -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCfGf7UHR5wJZXXqmwgb6Aggk7tBFw15-8&libraries=places"></script>
+<script>
+  function initAutocomplete() {
+      const locationInput = document.getElementById('location-address');
+      const autocomplete = new google.maps.places.Autocomplete(locationInput);
+
+      autocomplete.addListener('place_changed', () => {
+          const place = autocomplete.getPlace();
+
+          // Set the latitude and longitude input fields
+          if (place.geometry) {
+              document.getElementById('latitude').value = place.geometry.location.lat();
+              document.getElementById('longitude').value = place.geometry.location.lng();
+            } else {
+                alert("No details available for input: '" + place.name + "'");
+              }
+        });
+    }
+
+  // Initialize the Google Places Autocomplete when the window loads
+  window.onload = initAutocomplete;
+</script>
+{% endblock content %}
+

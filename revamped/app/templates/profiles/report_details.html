@@ -1,0 +1,152 @@
+{% extends "profiles/user_dashboard_base.html" %}
+
+{% block title %}
+Report Details
+{% endblock title %}
+
+{% block content %}
+{{ moment.include_moment() }}
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<div class="container mx-auto mt-8 p-8 relative">
+  <!-- Report Details Header -->
+  <header class="bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg p-6 text-white mb-8">
+    <h1 class="text-4xl font-semibold mb-2">Report Details</h1>
+    <p class="text-gray-200">View all the information about this report.</p>
+  </header>
+
+  <!-- Report Card -->
+  <div class="bg-gradient-to-r from-gray-400 to-gray-500 rounded-lg p-6 text-white mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div>
+        <h2 class="text-2xl font-semibold mb-2">Report Information</h2>
+        <p class="text-gray-200"><strong>Report ID:</strong> {{ report.reportId }}</p>
+        <p class="text-gray-200"><strong>Date Reported:</strong> {{ moment(report.dateCreated).format('LLLL') }}</p>
+        <p class="text-gray-200"><strong>Location:</strong> {{ report.locationAddress }}</p>
+        <p class="text-gray-200"><strong>Latitude:</strong> {{ report.latitude }}</p>
+        <p class="text-gray-200"><strong>Longitude:</strong> {{ report.longitude }}</p>
+        <p class="text-gray-200"><strong>Waste Type:</strong> {{ report.wasteType }}</p>
+        <p class="text-gray-200"><strong>Severity Level:</strong> {{ report.severityLevel }}</p>
+        <p class="text-gray-200"><strong>Period of Occurrence:</strong> {{ report.periodOfOccurrence }}</p>
+        <p class="text-gray-200"><strong>Status:</strong> {{ report.status }}</p>
+      </div>
+      <div>
+        <h2 class="text-2xl font-semibold mb-2">Report Description</h2>
+        <p class="text-gray-200">{{ report.description }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Details -->
+  <div class="bg-gradient-to-r from-indigo-400 to-indigo-500 rounded-lg p-6 text-white mb-8">
+    <h2 class="text-2xl font-semibold mb-4">Reported by</h2>
+    <div class="flex items-center">
+      {% if report.user.imageUrl %}
+      <img src="{{ url_for('static', filename = 'images/profiles/' + report.user.imageUrl) }}" alt="User Image" class="w-20 h-20 rounded-full mr-4 shadow-lg">
+      {% else %}
+      <img src="{{ report.user.getGravatar(128)}}" alt="User Image" class="w-20 h-20 rounded-full mr-4 shadow-lg">
+      {% endif %}
+      <div>
+        <h3 class="text-xl font-semibold">{{ report.user.username}}</h3>
+      </div>
+    </div>
+  </div>
+
+  <!-- Report Images -->
+  <div class="bg-gradient-to-r from-green-400 to-green-500 rounded-lg p-6 text-white mb-8">
+    <h2 class="text-2xl font-semibold mb-4">Report Images</h2>
+    <div class="grid grid-cols-2 md:grid-cols-2 gap-4">
+      {% for image in report_images %}
+      <img src="{{ url_for('static', filename='images/reports/' + report.reportId | string + '/' + image) }}" alt="Report Image {{ loop.index }}" class="rounded-lg shadow-lg">
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Map Section -->
+  <div class="bg-gradient-to-r from-purple-400 to-purple-500 rounded-lg p-6 text-white mb-8">
+    <h2 class="text-2xl font-semibold mb-4">Report Location</h2>
+    <div id="map" style="height: 400px;"></div>
+    <script>
+      // Initialize the map
+      var map = L.map('map').setView([{{ report.latitude }}, {{ report.longitude }}], 15);
+
+      // Add a tile layer (OpenStreetMap)
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+      // Add a marker for the report location
+      L.marker([{{ report.latitude }}, {{ report.longitude }}]).addTo(map)
+        .bindPopup("Report Location: {{ report.locationAddress }}")
+        .openPopup();
+    </script>
+  </div>
+
+  <!-- Comments Section -->
+  <div id="comments" class="bg-gradient-to-r from-red-400 to-red-500 rounded-lg p-6 text-white mb-8">
+    <h2 class="text-2xl font-semibold mb-4">Add Comment</h2>
+    <form class="mb-4" method="POST" action="{{ url_for('profiles.report_details', report_id=report.reportId) }}">
+      <textarea class="w-full rounded-lg p-2 focus:outline-none text-gray-800" name="comment-input" rows="3" placeholder="Add your comment"></textarea>
+      <button type="submit" class="mt-2 bg-indigo-500 text-white rounded-lg py-2 px-4 hover:bg-indigo-600 focus:outline-none">Submit Comment</button>
+    </form>
+    {% if report.comments %}
+    <h2 class="text-2xl font-semibold mb-4">Comments</h2>
+    <div class="space-y-4">
+      {% for comment in report.comments %}
+      <div class="bg-gray-200 p-4 rounded-lg">
+        <p class="text-gray-600"><strong>@{{ comment.user.username }}</strong> {{ comment.content }}</p>
+        <p class="text-gray-400">Posted on {{ moment(comment.dateCreated).format('LLLL') }}</p>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+  {% if report.reportAssignments %}
+  {% set assignment = report.reportAssignments[-1] %}
+
+  {% if assignment.reportResolution %}
+  {% set resolution = assignment.reportResolution %}
+
+  <div class="bg-gradient-to-r from-green-400 to-green-500 rounded-lg p-6 text-white mb-8">
+    <div>
+      <h2 class="text-2xl font-semibold mb-2">Report Resolution Details</h2>
+      <div class="my-4">
+        <h3 class="text-2xl font-semibold mb-2">Severity Level</h3>
+        <p>{{ resolution.severityLevel }}</p>
+      </div>
+    </div>
+    <div class="my-4">
+      <h3 class="text-2xl font-semibold mb-2">Date Completed</h3>
+      <p>{{ moment(resolution.dateCompleted).format('LLL') }}</p>
+    </div>
+    <div class="my-4">
+      <h3 class="text-2xl font-semibold mb-2">Initial Situation</h3>
+      <p>{{ resolution.initialSituationDescription }}</p>
+    </div>
+    <div class="my-4">
+      <h3 class="text-2xl font-semibold mb-2">Steps Taken</h3>
+      <p>{{ resolution.stepsTaken }}</p>
+    </div>
+    <div class="my-4">
+      <h3 class="text-2xl font-semibold mb-2">Recommendations</h3>
+      <p>{{ resolution.recommendations }}</p>
+    </div>
+    <div class="my-4">
+      <h3 class="text-2xl font-semibold mb-2">Potential Causes</h3>
+      <p>{{ resolution.potentialCauses }}</p>
+    </div>
+    <div class="my-4">
+      <h3 class="text-2xl font-semibold mb-2">Man Power Utilized</h3>
+      <p>{{ resolution.manPowerDetails }}</p>
+    </div>
+    <div class="my-4">
+      <h3 class="text-2xl font-semibold mb-2">Financial Costs</h3>
+      <p>{{ resolution.financialCosts }}</p>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endif %}
+</div>
+{% endblock content %}
